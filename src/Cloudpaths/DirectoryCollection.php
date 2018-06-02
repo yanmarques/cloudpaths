@@ -2,6 +2,7 @@
 
 namespace Cloudpaths;
 
+use \Closure;
 use Cloudpaths\Contracts\Directory;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
