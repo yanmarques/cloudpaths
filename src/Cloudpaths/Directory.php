@@ -2,27 +2,27 @@
 
 namespace Cloudpaths;
 
-use Cloudpaths\Contracts\Directory as DirectoryContract; 
+use Cloudpaths\Contracts\Directory as DirectoryContract;
 
 class Directory implements DirectoryContract
 {
     /**
-     * The directory name;
-     * 
+     * The directory name;.
+     *
      * @var string
      */
     protected $name;
 
     /**
-     * Array with mapped subDirectories of current directory;
-     * 
+     * Array with mapped subDirectories of current directory;.
+     *
      * @var array
      */
     protected $subDirectories;
 
     /**
      * Class constructor.
-     * 
+     *
      * @param  string $name
      * @param  Cloudpaths\DirectoryCollection|null $subDirectories
      * @return void
@@ -35,7 +35,7 @@ class Directory implements DirectoryContract
 
     /**
      * Get the directory name.
-     * 
+     *
      * @return string
      */
     public function getName()
@@ -45,7 +45,7 @@ class Directory implements DirectoryContract
 
     /**
      * Get the sub directories.
-     * 
+     *
      * @return Cloudpaths\DirectoryCollection
      */
     public function getSubDirectories()

@@ -2,35 +2,36 @@
 
 namespace Cloudpaths;
 
-use \Closure;
+use Closure;
+use Illuminate\Support\Arr;
 use Cloudpaths\Contracts\Directory;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Support\Arr;
 
 class DirectoryCollection implements Arrayable
 {
     /**
      * The collection items.
-     * 
+     *
      * @var array
      */
     protected $items = [];
 
     /**
      * Push new directory onto the end of collection.
-     * 
+     *
      * @param  Cloudpaths\Directory
      * @return this
      */
     public function push(Directory $directory)
     {
         $this->items[] = $directory;
+
         return $this;
     }
 
     /**
      * Get the first directory on collection that pass the truth test.
-     * 
+     *
      * @param \Closure\null $callback
      * @return Cloudpaths\Directory|null
      */
@@ -41,7 +42,7 @@ class DirectoryCollection implements Arrayable
 
     /**
      * Get the last directory on collection.
-     * 
+     *
      * @return Cloudpaths\Directory|null
      */
     public function last()
@@ -51,7 +52,7 @@ class DirectoryCollection implements Arrayable
 
     /**
      * Get all items as plain array.
-     * 
+     *
      * @return array
      */
     public function all()
@@ -59,7 +60,7 @@ class DirectoryCollection implements Arrayable
         return $this->toArray();
     }
 
-     /**
+    /**
      * Get the instance as an array.
      *
      * @return array
