@@ -32,7 +32,7 @@ class DirectoryCollection implements Arrayable
     /**
      * Get the first directory on collection that pass the truth test.
      *
-     * @param \Closure\null $callback
+     * @param \Closure|null $callback
      * @return Cloudpaths\Directory|null
      */
     public function first(Closure $callback = null)
