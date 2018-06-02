@@ -1,0 +1,17 @@
+{
+    "name": "yanmarques/cloudpaths",
+    "description": "A mapper to create paths for cloud storage",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^7.2"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yan Marques",
+            "email": "marques_yan@outlook.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
