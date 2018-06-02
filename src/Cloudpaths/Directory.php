@@ -7,14 +7,14 @@ use Cloudpaths\Contracts\Directory as DirectoryContract;
 class Directory implements DirectoryContract
 {
     /**
-     * The directory name;.
+     * The directory name.
      *
      * @var string
      */
     protected $name;
 
     /**
-     * Array with mapped subDirectories of current directory;.
+     * Array with mapped subDirectories of current directory.
      *
      * @var array
      */
