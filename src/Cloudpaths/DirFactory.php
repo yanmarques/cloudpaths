@@ -7,14 +7,14 @@ use Cloudpaths\Contracts\Factory;
 class DirFactory implements Factory
 {
     /**
-     * Create a directory with name and mapping an array of 
+     * Create a directory with name and mapping an array of
      * subdirectories.
-     * 
+     *
      * @param  string $directory
      * @param  array $subDirectories
      * @return Cloudpaths\Directory
      */
-    public function create(string $directory, array $subDirectories = []) 
+    public function create(string $directory, array $subDirectories = [])
     {
         return new Directory($directory, $this->createSubDirectories(
            $subDirectories
@@ -23,17 +23,17 @@ class DirFactory implements Factory
 
     /**
      * Map all subdirectories and create a subdirectories collection.
-     * 
+     *
      * @param  array $subDirectories
      * @return CloudPaths\DirectoryCollection
      */
     protected function createSubDirectories(array $subDirectories)
     {
-        $collection = new DirectoryCollection; 
-        
-        foreach($subDirectories as $directory => $subDirectories) {
+        $collection = new DirectoryCollection;
+
+        foreach ($subDirectories as $directory => $subDirectories) {
             if (is_string($directory)) {
-                
+
                 // Subdirectories have pathKeys directories.
                 //
                 // Ex: [
@@ -47,7 +47,7 @@ class DirFactory implements Factory
                 );
             } else {
 
-                // Non-associative array, then the directory name is 
+                // Non-associative array, then the directory name is
                 // the subDirectory.
                 $directory = $subDirectories;
 
