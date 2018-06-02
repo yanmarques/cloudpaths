@@ -5,7 +5,7 @@ namespace Tests\Cloudpaths;
 use Cloudpaths\Traits\ParsesDotNotation;
 use PHPUnit\Framework\TestCase;
 
-class CloudpathsTest extends TestCase
+class ParsesDotNotationTest extends TestCase
 {
     use ParsesDotNotation;
 
