@@ -3,6 +3,7 @@
 namespace Cloudpaths;
 
 use Closure;
+use InvalidArgumentException;
 use Illuminate\Support\Arr;
 use Cloudpaths\Contracts\Directory;
 use Illuminate\Contracts\Support\Arrayable;
@@ -61,6 +62,41 @@ class DirectoryCollection implements Arrayable
     }
 
     /**
+     * Iterate through each item and execute a callback with item.
+     * The returned object will overwrite the original item. 
+     * 
+     * @throws  InvalidArgumentException
+     * 
+     * @param  \Closure $callback
+     * @return Cloudpaths\DirectoryCollection
+     */
+    public function map(Closure $callback)
+    {
+        // Array with all returned values that will compose
+        // the new collection.
+        $newItems = [];
+
+        foreach($this->items as $item) {
+
+            // Execute user function and receive the result.
+            $result = $this->call($callback, $item);
+
+            if (! $result || ! $result instanceof Directory) {
+                
+                // Invalid returned value.
+                throw new InvalidArgumentException(
+                    'Invalid return value for collection.'
+                );
+            }
+
+            // Overwrite the item with the result value. 
+            $newItems[] = $result;
+        }
+
+        return $this->newInstance($newItems);
+    }
+
+    /**
      * Get the instance as an array.
      *
      * @return array
@@ -68,5 +104,35 @@ class DirectoryCollection implements Arrayable
     public function toArray()
     {
         return $this->items;
+    }
+
+    /**
+     * Execute the callback with the directory as argument.
+     *
+     * @param  \Closure $callback
+     * @param  Cloudpaths\Directory $directory
+     * @return mixed
+     */
+    protected function call(Closure $callback, Directory $directory) 
+    {
+        // Receive the function result.
+        return call_user_func($callback, $directory);
+    }
+
+    /**
+     * Create a new instance pushing each item to collection.
+     *
+     * @param  array $items
+     * @return Cloudpaths\DirectoryCollection
+     */
+    protected function newInstance(array $items) 
+    {
+        $collection = new static;
+
+        foreach($items as $item) {
+            $collection->push($item);
+        }
+
+        return $collection;
     }
 }
