@@ -6,7 +6,7 @@ abstract class Mapper
 {
     /**
      * Map a new directory - subDirectory structure.
-     * 
+     *
      * @param  string $directory
      * @param  array $subDirectories
      * @return this
@@ -15,7 +15,7 @@ abstract class Mapper
 
     /**
      * Map a new directory - subDirectory structure from an array.
-     * 
+     *
      * @param  array $paths
      * @return this
      */
@@ -23,7 +23,7 @@ abstract class Mapper
 
     /**
      * Search for a directory and apply the replaces.
-     * 
+     *
      * @return string|null
      */
     abstract public function find(string $directory, array $replacements = []);
