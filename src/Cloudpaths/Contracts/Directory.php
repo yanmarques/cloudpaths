@@ -17,4 +17,11 @@ interface Directory
      * @return Cloudpaths\DirectoryCollection
      */
     public function getSubDirectories();
+
+    /**
+     * Get parent directory of the instance.
+     *
+     * @return Cloudpaths\Contracts\Directory|null
+     */
+    public function getParent();
 }

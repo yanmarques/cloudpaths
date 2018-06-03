@@ -21,16 +21,27 @@ class Directory implements DirectoryContract
     protected $subDirectories;
 
     /**
+     * The parent directory.
+     * 
+     * @var Cloudpaths\Contracts\Directory
+     */
+    protected $parent;
+
+    /**
      * Class constructor.
      *
      * @param  string $name
      * @param  Cloudpaths\DirectoryCollection|null $subDirectories
      * @return void
      */
-    public function __construct(string $name, DirectoryCollection $subDirectories = null)
-    {
+    public function __construct(
+        string $name, 
+        DirectoryCollection $subDirectories = null,
+        DirectoryContract $parent = null
+    ) {
         $this->name = $name;
         $this->subDirectories = $subDirectories ?: new DirectoryCollection;
+        $this->parent = $parent;
     }
 
     /**
@@ -51,5 +62,15 @@ class Directory implements DirectoryContract
     public function getSubDirectories()
     {
         return $this->subDirectories;
+    }
+    
+    /**
+     * Get parent directory of the instance.
+     *
+     * @return Cloudpaths\Contracts\Directory|null
+     */
+    public function getParent()
+    {
+        return $this->parent;
     }
 }
