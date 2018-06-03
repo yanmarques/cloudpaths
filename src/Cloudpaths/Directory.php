@@ -40,8 +40,10 @@ class Directory implements DirectoryContract
         DirectoryContract $parent = null
     ) {
         $this->name = $name;
-        $this->subDirectories = $subDirectories ?: new DirectoryCollection;
         $this->parent = $parent;
+        $this->setSubDirectories(
+            $subDirectories ?: new DirectoryCollection
+        );
     }
 
     /**
@@ -63,6 +65,18 @@ class Directory implements DirectoryContract
     {
         return $this->subDirectories;
     }
+
+    /**
+     * Set the parent directory of the instance.
+     *
+     * @param  Cloudpaths\Contracts\Directory $parent
+     * @return this
+     */
+    public function setParent(DirectoryContract $parent)
+    {
+        $this->parent = $parent;
+        return $this;
+    }
     
     /**
      * Get parent directory of the instance.
@@ -72,5 +86,19 @@ class Directory implements DirectoryContract
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * Set the subDirectories collection mapping throgh them and
+     * relating each subDirectory with the instance. 
+     *
+     * @param  Cloudpaths\DirectoryCollection
+     * @return void
+     */
+    protected function setSubDirectories(DirectoryCollection $subDirectories)
+    {
+        $this->subDirectories = $subDirectories->map(function ($directory) {
+            return $directory->setParent($this);
+        });
     }
 }
