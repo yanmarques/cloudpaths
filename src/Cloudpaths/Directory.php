@@ -22,7 +22,7 @@ class Directory implements DirectoryContract
 
     /**
      * The parent directory.
-     * 
+     *
      * @var Cloudpaths\Contracts\Directory
      */
     protected $parent;
@@ -35,7 +35,7 @@ class Directory implements DirectoryContract
      * @return void
      */
     public function __construct(
-        string $name, 
+        string $name,
         DirectoryCollection $subDirectories = null,
         DirectoryContract $parent = null
     ) {
@@ -75,9 +75,10 @@ class Directory implements DirectoryContract
     public function setParent(DirectoryContract $parent)
     {
         $this->parent = $parent;
+
         return $this;
     }
-    
+
     /**
      * Get parent directory of the instance.
      *
@@ -90,7 +91,7 @@ class Directory implements DirectoryContract
 
     /**
      * Set the subDirectories collection mapping throgh them and
-     * relating each subDirectory with the instance. 
+     * relating each subDirectory with the instance.
      *
      * @param  Cloudpaths\DirectoryCollection
      * @return void

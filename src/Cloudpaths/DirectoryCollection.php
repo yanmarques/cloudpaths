@@ -3,8 +3,8 @@
 namespace Cloudpaths;
 
 use Closure;
-use InvalidArgumentException;
 use Illuminate\Support\Arr;
+use InvalidArgumentException;
 use Cloudpaths\Contracts\Directory;
 use Illuminate\Contracts\Support\Arrayable;
 
@@ -63,10 +63,10 @@ class DirectoryCollection implements Arrayable
 
     /**
      * Iterate through each item and execute a callback with item.
-     * The returned object will overwrite the original item. 
-     * 
+     * The returned object will overwrite the original item.
+     *
      * @throws  InvalidArgumentException
-     * 
+     *
      * @param  \Closure $callback
      * @return Cloudpaths\DirectoryCollection
      */
@@ -76,20 +76,20 @@ class DirectoryCollection implements Arrayable
         // the new collection.
         $newItems = [];
 
-        foreach($this->items as $item) {
+        foreach ($this->items as $item) {
 
             // Execute user function and receive the result.
             $result = $this->call($callback, $item);
 
             if (! $result || ! $result instanceof Directory) {
-                
+
                 // Invalid returned value.
                 throw new InvalidArgumentException(
                     'Invalid return value for collection.'
                 );
             }
 
-            // Overwrite the item with the result value. 
+            // Overwrite the item with the result value.
             $newItems[] = $result;
         }
 
@@ -113,7 +113,7 @@ class DirectoryCollection implements Arrayable
      * @param  Cloudpaths\Directory $directory
      * @return mixed
      */
-    protected function call(Closure $callback, Directory $directory) 
+    protected function call(Closure $callback, Directory $directory)
     {
         // Receive the function result.
         return call_user_func($callback, $directory);
@@ -125,11 +125,11 @@ class DirectoryCollection implements Arrayable
      * @param  array $items
      * @return Cloudpaths\DirectoryCollection
      */
-    protected function newInstance(array $items) 
+    protected function newInstance(array $items)
     {
         $collection = new static;
 
-        foreach($items as $item) {
+        foreach ($items as $item) {
             $collection->push($item);
         }
 
