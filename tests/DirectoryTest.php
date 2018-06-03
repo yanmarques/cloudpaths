@@ -57,4 +57,79 @@ class DirectoryTest extends TestCase
             $subDirectories
         );
     }
+
+    /**
+     * Should create an instance with parent directory.
+     * 
+     * @return void
+     */
+    public function testCreateWithParent()
+    {
+        $subDirectories = [
+            new Directory('foo'),
+            new Directory('bar')
+        ];
+
+        $collection = new DirectoryCollection;
+
+        foreach($subDirectories as $directory) {
+            $collection->push($directory);
+        }
+
+        $parent = new Directory('baz');
+        $directory = new Directory('foo', $collection, $parent);
+        
+        $this->assertEquals(
+            $directory->getParent(),
+            $parent
+        );
+    }
+
+    /**
+     * Should assert that each top level subdirectory has
+     * the current directory instance as parent.
+     * 
+     * @return void
+     */
+    public function testParentSubDirectories()
+    {
+        $subDirectories = [
+            new Directory('foo'),
+            new Directory('bar')
+        ];
+
+        $collection = new DirectoryCollection;
+
+        foreach($subDirectories as $directory) {
+            $collection->push($directory);
+        }
+
+        $directory = new Directory('foo', $collection);
+        $subDirectories = $directory->getSubDirectories()->all();
+
+        foreach($subDirectories as $subDirectory) {
+            $this->assertEquals(
+                $directory,
+                $subDirectory->getParent()
+            );
+        }
+    }
+
+    /**
+     * Should change the parent for directory.
+     * 
+     * @return void
+     */
+    public function testSettingANewParentForDirectory()
+    {
+        $parent = new Directory('root');
+        $directory = new Directory('foo', null, $parent);
+        $newParent = new Directory('newRoot');
+        $directory->setParent($newParent);
+        
+        $this->assertEquals(
+            $directory->getParent(),
+            $newParent
+        );
+    }
 }
