@@ -148,4 +148,57 @@ class DirectoryCollectionTest extends TestCase
 
         $this->assertEquals($directories, $collection->all());
     }
+
+    /**
+     * Should map through collection items and change 
+     * their names to baz.
+     * 
+     * @return void
+     */
+    public function testMapWithValidReturnedValue()
+    {
+        $directories = [
+            new Directory('foo'),
+            new Directory('bar')
+        ];
+
+        $collection = new DirectoryCollection;
+        
+        foreach($directories as $directory) {
+            $collection->push($directory);
+        }
+
+        $newCollection = $collection->map(function ($directory) {
+            return new Directory('baz');
+        });
+
+        foreach($newCollection->all() as $item) {
+            $this->assertEquals($item->getName(), 'baz');
+        }
+    }
+
+    /**
+     * Should throw an InvalidArgumentException when an invalid 
+     * value is returned from map function.
+     * 
+     * @return void
+     */
+    public function testMapWithInValidReturnedValue()
+    {
+        $directories = [
+            new Directory('foo')
+        ];
+
+        $collection = new DirectoryCollection;
+        
+        foreach($directories as $directory) {
+            $collection->push($directory);
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $collection->map(function ($directory) {
+            return null;
+        });
+    }
 }
