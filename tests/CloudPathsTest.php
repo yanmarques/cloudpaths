@@ -397,6 +397,33 @@ class CloudpathsTest extends TestCase
         // Assert second subDirectory level name.
         $this->assertEquals($secondSubDirectoryLevel->getName(), 'baz');
     }
+
+    /**
+     * Should assert the top level directory parent is the root
+     * of the configuration root.
+     *
+     * @return void
+     */
+    public function testGetParentOfTopLevelDirectory()
+    {
+        $config = [
+            'root' => 'bar',
+            'paths' => [
+                'foo'
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudpaths($config);
+        $collectionFound = $cloudpaths->find('foo');
+
+        $this->assertFalse($collectionFound->isEmpty());
+
+        $topLevelDirectory = $collectionFound->first();
+        $this->assertEquals(
+            $topLevelDirectory->getParent()->getName(),
+            $config['root']
+        );
+    }
     
     /**
      * Create a new cloudpaths instance.
