@@ -188,7 +188,7 @@ class Cloudpaths extends Mapper
         if ($this->config->has('paths')) {
 
             // Map each registered directory for further usage.
-            $this->map($this->config->get('paths'));
+            $this->mapArray($this->config->get('paths'));
         }
     }
 
