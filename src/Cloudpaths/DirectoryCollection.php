@@ -62,6 +62,16 @@ class DirectoryCollection implements Arrayable
     }
 
     /**
+     * Return wheter the collection is empty.
+     *
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return empty($this->items);
+    }
+
+    /**
      * Iterate through each item and execute a callback with item.
      * The returned object will overwrite the original item.
      *
