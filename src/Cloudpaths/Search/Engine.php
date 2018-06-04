@@ -5,7 +5,6 @@ namespace Cloudpaths\Search;
 use Cloudpaths\Directory;
 use Cloudpaths\Contracts\Searcher;
 use Cloudpaths\DirectoryCollection;
-use Cloudpaths\Contracts\EngineScope;
 
 class Engine implements Searcher
 {
@@ -17,7 +16,7 @@ class Engine implements Searcher
     protected $scope;
 
     /**
-     * Class constructor. The directories received will be the
+     * Class constructor. The directories received will be the.
      *
      * @param  Cloudpaths\DirectoryCollection $directories
      * @return void
@@ -37,6 +36,7 @@ class Engine implements Searcher
     public function setScope(DirectoryCollection $directories)
     {
         $this->scope = $this->createScopeWithCollection($directories);
+
         return $this;
     }
 
@@ -49,7 +49,7 @@ class Engine implements Searcher
     {
         return $this->scope;
     }
-    
+
     /**
      * Search a directory by name on the current scope.
      *

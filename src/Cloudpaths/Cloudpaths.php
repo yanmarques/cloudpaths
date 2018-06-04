@@ -3,9 +3,9 @@
 namespace Cloudpaths;
 
 use Illuminate\Support\Arr;
+use Cloudpaths\Search\Engine;
 use Cloudpaths\Contracts\Factory;
 use Cloudpaths\Contracts\Searcher;
-use Cloudpaths\Search\Engine;
 use Cloudpaths\Traits\ParsesDotNotation;
 use Illuminate\Contracts\Config\Repository;
 
@@ -149,7 +149,7 @@ class Cloudpaths extends Mapper
 
         // The main directory to get the subDirectories.
         $mainDirectory = $foundCollection->first();
-        
+
         if (count($fragments) >= 1) {
 
             // Remove the top level directory from the found collection
@@ -230,7 +230,7 @@ class Cloudpaths extends Mapper
 
         // The collection found on fragment search.
         $foundCollection = $this->searchEngine->search($directoryName);
-            
+
         foreach ($collectionScope->all() as $directory) {
 
             // Merge the collection found with the collection to return.
