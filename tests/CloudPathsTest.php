@@ -13,7 +13,7 @@ class CloudpathsTest extends TestCase
 {
     /**
      * Should create a Mapper instance.
-     * 
+     *
      * @return void
      */
     public function testCreateInstanceWith()
@@ -28,12 +28,12 @@ class CloudpathsTest extends TestCase
 
     /**
      * Should create a root directory.
-     * 
+     *
      * @return void
      */
     public function testCreateWithFooRoot()
     {
-        $root = 'foo'; 
+        $root = 'foo';
         $cloudpaths = $this->newCloudpaths(compact('root'));
 
         $this->assertEquals(
@@ -44,7 +44,7 @@ class CloudpathsTest extends TestCase
 
     /**
      * Should map a new directory with empty subDirectories.
-     * 
+     *
      * @return void
      */
     public function testMapANewDirectoryWithEmptySubDirectories()
@@ -64,7 +64,7 @@ class CloudpathsTest extends TestCase
 
     /**
      * Should map a new directory with subDirectories.
-     * 
+     *
      * @return void
      */
     public function testMapANewDirectoryWithPlainSubDirectories()
@@ -85,7 +85,7 @@ class CloudpathsTest extends TestCase
         );
 
         $index = 0;
-        foreach($newlyDir->getSubDirectories()->all() as $directory) {
+        foreach ($newlyDir->getSubDirectories()->all() as $directory) {
             $this->assertEquals(
                 $directory->getName(),
                 $subDirectories[$index]
@@ -96,7 +96,7 @@ class CloudpathsTest extends TestCase
 
     /**
      * Should map a new directory with subDirectories.
-     * 
+     *
      * @return void
      */
     public function testMapANewDirectoryWithNestedSubDirectories()
@@ -135,7 +135,7 @@ class CloudpathsTest extends TestCase
         );
 
         $index = 0;
-        foreach($nestedFoo2->getSubDirectories()->all() as $directory) {
+        foreach ($nestedFoo2->getSubDirectories()->all() as $directory) {
             $this->assertEquals(
                 $directory->getName(),
                 $subDirectories['foo1']['foo2'][$index]
@@ -144,11 +144,11 @@ class CloudpathsTest extends TestCase
         }
     }
 
-     /**
-     * Should map an array to new directory with empty subDirectories.
-     * 
-     * @return void
-     */
+    /**
+    * Should map an array to new directory with empty subDirectories.
+    *
+    * @return void
+    */
     public function testMapArrayToNewDirectoryWithEmptySubDirectories()
     {
         $cloudpaths = $this->newCloudpaths();
@@ -166,7 +166,7 @@ class CloudpathsTest extends TestCase
 
     /**
      * Should map an array new directory with subDirectories.
-     * 
+     *
      * @return void
      */
     public function testMapArrayToNewDirectoryWithPlainSubDirectories()
@@ -189,7 +189,7 @@ class CloudpathsTest extends TestCase
         );
 
         $index = 0;
-        foreach($newlyDir->getSubDirectories()->all() as $directory) {
+        foreach ($newlyDir->getSubDirectories()->all() as $directory) {
             $this->assertEquals(
                 $directory->getName(),
                 $subDirectories[$index]
@@ -200,7 +200,7 @@ class CloudpathsTest extends TestCase
 
     /**
      * Should map an array to new directory with subDirectories.
-     * 
+     *
      * @return void
      */
     public function testMapArrayToNewDirectoryWithNestedSubDirectories()
@@ -241,7 +241,7 @@ class CloudpathsTest extends TestCase
         );
 
         $index = 0;
-        foreach($nestedFoo2->getSubDirectories()->all() as $directory) {
+        foreach ($nestedFoo2->getSubDirectories()->all() as $directory) {
             $this->assertEquals(
                 $directory->getName(),
                 $subDirectories['foo1']['foo2'][$index]
@@ -251,8 +251,156 @@ class CloudpathsTest extends TestCase
     }
 
     /**
+     * Should find the valid path directory.
+     *
+     * @return void
+     */
+    public function testFindWithValidPath()
+    {
+        $paths = [
+            'foo' => [
+                'bar' => [
+                    'baz'
+                ],
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudPaths(compact('paths'));
+        $found = $cloudpaths->find('foo.baz');
+
+        $this->assertFalse($found->isEmpty());
+
+        $directory = $found->first();
+        $this->assertEquals($directory->getName(), 'baz');
+        
+        $this->assertEquals($directory->getParent()->getName(), 'bar');
+        
+        $this->assertEquals(
+            $directory->getParent()->getParent()->getName(),
+            'foo'
+        );
+    }
+
+    /**
+     * Should get an empty collection.
+     *
+     * @return void
+     */
+    public function testFindWithInvalidPath()
+    {
+        $paths = [
+            'foo' => [
+                'bar' => [
+                    'baz'
+                ],
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudPaths(compact('paths'));
+        $found = $cloudpaths->find('foo.any');
+
+        $this->assertTrue($found->isEmpty());
+    }
+
+    /**
+     * Should get 2 items on collection with bar name.
+     * Shoudl assert each subDirectory name from found
+     * directories.
+     *
+     * @return void
+     */
+    public function testFindManyWithValidPath()
+    {
+        $paths = [
+            'foo' => [
+                'bar',
+                'baz' => [
+                    'bar'
+                ]
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudPaths(compact('paths'));
+        $found = $cloudpaths->find('foo.bar');
+
+        $this->assertFalse($found->isEmpty());
+
+        $directory = $found->shift();
+        $this->assertEquals(
+            $directory->getName(),
+            'bar'
+        );
+
+        // Assert the top level directory.
+        $this->assertEquals(
+            $directory->getParent()->getName(),
+            'foo'
+        );
+
+        $secondDirectory = $found->first();
+
+        // Assert directory name.
+        $this->assertEquals(
+            $secondDirectory->getName(),
+            'bar'
+        );
+
+        // First top level directory.
+        $topLevelDirectory = $secondDirectory->getParent();
+
+        // Assert the first top level name.
+        $this->assertEquals(
+            $topLevelDirectory->getName(),
+            'baz'
+        );
+
+        // Assert the top level directory.
+        $this->assertEquals(
+            $topLevelDirectory->getParent()->getName(),
+            'foo'
+        );
+    }
+
+    /**
+     * Should get the top level directory.
+     * Should assert each subDirectory name.
+     *
+     * @return void
+     */
+    public function testFindToplLevelDirectory()
+    {
+        $paths = [
+            'foo' => [
+                'bar' => [
+                    'baz'
+                ],
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudPaths(compact('paths'));
+        $found = $cloudpaths->find('foo');
+
+        $this->assertFalse($found->isEmpty());
+
+        $directory = $found->first();
+
+        // Assert top level directory name.
+        $this->assertEquals($directory->getName(), 'foo');
+
+        $firstSubDirectoryLevel = $directory->getSubDirectories()->first();
+
+        // Assert first subDirectory level name.
+        $this->assertEquals($firstSubDirectoryLevel->getName(), 'bar');
+
+        $secondSubDirectoryLevel = $firstSubDirectoryLevel->getSubDirectories()->first();
+
+        // Assert second subDirectory level name.
+        $this->assertEquals($secondSubDirectoryLevel->getName(), 'baz');
+    }
+    
+    /**
      * Create a new cloudpaths instance.
-     * 
+     *
      * @param  array $paths
      * @return Cloudpaths\Cloudpaths
      */
