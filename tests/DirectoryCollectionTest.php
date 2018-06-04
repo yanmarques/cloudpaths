@@ -10,7 +10,7 @@ class DirectoryCollectionTest extends TestCase
 {
     /**
      * Should add a new directory instance.
-     * 
+     *
      * @return void
      */
     public function testPushAddDirectoryToCollection()
@@ -25,7 +25,7 @@ class DirectoryCollectionTest extends TestCase
 
     /**
      * Should receive null.
-     * 
+     *
      * @return void
      */
     public function testFirstOnEmptyCollection()
@@ -36,7 +36,7 @@ class DirectoryCollectionTest extends TestCase
 
     /**
      * Should find first directory with foo name.
-     * 
+     *
      * @return void
      */
     public function testFirstDirectoryWithFooName()
@@ -55,7 +55,7 @@ class DirectoryCollectionTest extends TestCase
     /**
      * Should find first directory with foo name, but only
      * bar is registered, receive null.
-     * 
+     *
      * @return void
      */
     public function testFirstDirectoryWithBarName()
@@ -72,7 +72,7 @@ class DirectoryCollectionTest extends TestCase
 
     /**
      * Should receive the same directory pushed.
-     * 
+     *
      * @return void
      */
     public function testLastWithOnlyOneDirectory()
@@ -88,7 +88,7 @@ class DirectoryCollectionTest extends TestCase
 
     /**
      * Should receive the last pushed directory.
-     * 
+     *
      * @return void
      */
     public function testLastWithMoreDirectories()
@@ -107,7 +107,7 @@ class DirectoryCollectionTest extends TestCase
 
     /**
      * Should receive null due to empty collection.
-     * 
+     *
      * @return void
      */
     public function testLastWithEmptyCollection()
@@ -119,7 +119,7 @@ class DirectoryCollectionTest extends TestCase
 
     /**
      * Should return empty array.
-     * 
+     *
      * @return void
      */
     public function testAllWithEmptyCollection()
@@ -130,7 +130,7 @@ class DirectoryCollectionTest extends TestCase
 
     /**
      * Should return an array with all directories.
-     * 
+     *
      * @return void
      */
     public function testAllWithDirectoriesList()
@@ -142,7 +142,7 @@ class DirectoryCollectionTest extends TestCase
 
         $collection = new DirectoryCollection;
         
-        foreach($directories as $directory) {
+        foreach ($directories as $directory) {
             $collection->push($directory);
         }
 
@@ -150,9 +150,9 @@ class DirectoryCollectionTest extends TestCase
     }
 
     /**
-     * Should map through collection items and change 
+     * Should map through collection items and change
      * their names to baz.
-     * 
+     *
      * @return void
      */
     public function testMapWithValidReturnedValue()
@@ -164,7 +164,7 @@ class DirectoryCollectionTest extends TestCase
 
         $collection = new DirectoryCollection;
         
-        foreach($directories as $directory) {
+        foreach ($directories as $directory) {
             $collection->push($directory);
         }
 
@@ -172,15 +172,15 @@ class DirectoryCollectionTest extends TestCase
             return new Directory('baz');
         });
 
-        foreach($newCollection->all() as $item) {
+        foreach ($newCollection->all() as $item) {
             $this->assertEquals($item->getName(), 'baz');
         }
     }
 
     /**
-     * Should throw an InvalidArgumentException when an invalid 
+     * Should throw an InvalidArgumentException when an invalid
      * value is returned from map function.
-     * 
+     *
      * @return void
      */
     public function testMapWithInValidReturnedValue()
@@ -191,7 +191,7 @@ class DirectoryCollectionTest extends TestCase
 
         $collection = new DirectoryCollection;
         
-        foreach($directories as $directory) {
+        foreach ($directories as $directory) {
             $collection->push($directory);
         }
 
@@ -200,5 +200,31 @@ class DirectoryCollectionTest extends TestCase
         $collection->map(function ($directory) {
             return null;
         });
+    }
+
+    /**
+     * Should assert the collection is empty.
+     *
+     * @return void
+     */
+    public function testIsEmptyWithAEmptyCollection()
+    {
+        $collection = new DirectoryCollection;
+        $this->assertTrue($collection->isEmpty());
+    }
+
+    /**
+     * Should assert the collection not is empty.
+     *
+     * @return void
+     */
+    public function testIsEmptyWithNotEmptyCollection()
+    {
+        $collection = new DirectoryCollection;
+
+        // Add items to collection, so now on the collection
+        // should not be empty.
+        $collection->push(new Directory('foo'));
+        $this->assertFalse($collection->isEmpty());
     }
 }
