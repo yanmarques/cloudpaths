@@ -3,9 +3,9 @@
 namespace Cloudpaths;
 
 use Closure;
-use InvalidArgumentException;
 use Illuminate\Support\Arr;
 use Cloudpaths\Search\Engine;
+use InvalidArgumentException;
 use Cloudpaths\Contracts\Factory;
 use Cloudpaths\Contracts\Searcher;
 use Cloudpaths\Traits\ParsesDotNotation;
@@ -214,6 +214,7 @@ class Cloudpaths extends Mapper
     public function setRootResolver(Closure $rootResolver)
     {
         $this->rootResolver = $rootResolver;
+
         return $this;
     }
 
