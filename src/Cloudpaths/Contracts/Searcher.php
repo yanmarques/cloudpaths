@@ -20,7 +20,7 @@ interface Searcher
      * @return Cloudpaths\Contracts\EngineScope
      */
     public function getScope();
-    
+
     /**
      * Search a directory by name on the current scope.
      *

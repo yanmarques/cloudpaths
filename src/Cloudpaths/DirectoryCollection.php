@@ -80,6 +80,7 @@ class DirectoryCollection implements Arrayable
     public function merge(DirectoryCollection $directories)
     {
         $this->items = array_merge($this->items, $directories->toArray());
+
         return $this;
     }
 

@@ -2,8 +2,8 @@
 
 namespace Cloudpaths\Search;
 
-use Cloudpaths\Contracts\EngineScope;
 use Cloudpaths\DirectoryCollection;
+use Cloudpaths\Contracts\EngineScope;
 
 class Scope implements EngineScope
 {
@@ -23,6 +23,7 @@ class Scope implements EngineScope
     public function setDirectoryCollection(DirectoryCollection $directories)
     {
         $this->directories = $directories;
+
         return $this;
     }
 
