@@ -227,4 +227,61 @@ class DirectoryCollectionTest extends TestCase
         $collection->push(new Directory('foo'));
         $this->assertFalse($collection->isEmpty());
     }
+
+    /**
+     * Should merge a collection items with another when is empty.
+     *
+     * @return void
+     */
+    public function testMergeCollectionWithEmptyCollection()
+    {
+        $collection = new DirectoryCollection;
+
+        // Only this directory should be kept on collection.
+        $onlyDirectory = new Directory('foo');
+        $collection->push($onlyDirectory);
+
+        // Empty collection to merge.
+        $collectionToMerge = new DirectoryCollection;
+        $collection->merge($collectionToMerge);
+        
+        $this->assertEquals(
+          $collection->toArray(),
+          [$onlyDirectory]
+        );
+    }
+
+    /**
+     * Should merge a collection items with another when has items.
+     *
+     * @return void
+     */
+    public function testMergeCollectionWithNotEmptyCollection()
+    {
+        $collection = new DirectoryCollection;
+
+        // Only this directory that will be pushed on collection.
+        $onlyDirectory = new Directory('foo');
+        $collection->push($onlyDirectory);
+
+        $collectionToMerge = new DirectoryCollection;
+
+        // New directories to add on collection to merge.
+        $directoriesToAdd = [
+            new Directory('foo'),
+            new Directory('bar'),
+            new Directory('baz')
+        ];
+
+        foreach ($directoriesToAdd as $directory) {
+            $collectionToMerge->push($directory);
+        }
+
+        $collection->merge($collectionToMerge);
+        
+        $this->assertEquals(
+          $collection->toArray(),
+          array_merge([$onlyDirectory], $directoriesToAdd)
+        );
+    }
 }
