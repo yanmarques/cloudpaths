@@ -4,6 +4,8 @@ namespace Cloudpaths;
 
 use Illuminate\Support\Arr;
 use Cloudpaths\Contracts\Factory;
+use Cloudpaths\Contracts\Searcher;
+use Cloudpaths\Search\Engine;
 use Cloudpaths\Traits\ParsesDotNotation;
 use Illuminate\Contracts\Config\Repository;
 
@@ -40,20 +42,36 @@ class Cloudpaths extends Mapper
     protected $factory;
 
     /**
+     * The directory search engine.
+     *
+     * @var Cloudpaths\Contracts\Searcher
+     */
+    protected $searchEngine;
+
+    /**
      * Class constructor.
      *
      * @param  Illuminate\Contracts\Config\Repository $config
      * @param  Cloudpaths\Contracts\Factory $factory
-     * @param  Cloudpaths\DirectoryCollection $directories
+     * @param  Cloudpaths\Contracts\Searcher $searchEngine
      * @return void
      */
     public function __construct(
         Repository $config,
         Factory $factory,
-        DirectoryCollection $directories = null
+        Searcher $searchEngine = null
     ) {
         $this->factory = $factory;
-        $this->directories = $directories ?: new DirectoryCollection;
+
+        // Create a new search engine if no engine is provided.
+        $this->searchEngine = $searchEngine ?: new Engine(
+            new DirectoryCollection
+        );
+
+        // Get the directory collection from engine scope.
+        $this->directories = $this->searchEngine->getScope()
+            ->getDirectoryCollection();
+
         $this->config = $this->setConfig($config);
     }
 
@@ -110,39 +128,45 @@ class Cloudpaths extends Mapper
      */
     public function find(string $input, array $replacements = [])
     {
-        // Collection to be returned.
-        $collection = new DirectoryCollection;
-
         // Get parsed dot notation input.
         $fragments = $this->parseInput($input);
 
+        // Change the search scope to the main directories collection.
+        $this->searchEngine->setScope($this->directories);
+
         // Make the first quick search on top level directories since the
         // first fragment should be the first directory.
-        $directory = $this->performQuickSearch($fragments[0]);
+        $foundCollection = $this->searchEngine->search(
+            array_shift($fragments)
+        );
 
-        if (! $directory) {
+        if ($foundCollection->isEmpty()) {
 
             // Any top level directory found. An empty collection
             // will be returned now.
-            return $collection;
+            return $foundCollection;
         }
 
-        if (count($fragments) <= 1) {
+        // The main directory to get the subDirectories.
+        $mainDirectory = $foundCollection->first();
+        
+        if (count($fragments) >= 1) {
 
-            // Push a found directory from a search on top level
-            // directories.
-            $collection->push($directory);
-        } else {
-
-            // TO-DO Create search through subdirectories.
-            // see https://github.com/yanmarques/cloudpaths/issues/5
-            //
-            // Keep searching through the directory subDirectories until
-            // we find the next fragmente. It's important that any achieved
-            // subDirectory be stored somewhere for further url building.
+            // Remove the top level directory from the found collection
+            $foundCollection->shift();
         }
 
-        return $collection;
+        foreach ($fragments as $fragment) {
+
+            // Merge the found collection with the collection result
+            // from the search of the fragment name.
+            $foundCollection->merge($this->findOnCollectionByName(
+                $fragment,
+                $mainDirectory->getSubDirectories()
+            ));
+        }
+
+        return $foundCollection;
     }
 
     /**
@@ -193,17 +217,28 @@ class Cloudpaths extends Mapper
     }
 
     /**
-     * Search a directory on top level directories.
+     * Find a directory from a collection as scope for the search engine.
      *
-     * @param  string $dirName
-     * @return Cloudpaths\Directory|null
+     * @param  string $directoryName
+     * @param  Cloudpaths\DirectoryCollection $collectionScope
+     * @return Cloudpaths\DirectoryCollection
      */
-    protected function performQuickSearch(string $dirName)
+    protected function findOnCollectionByName(string $directoryName, DirectoryCollection $collectionScope)
     {
-        return $this->directories->first(
-            function (Directory $directory) use ($dirName) {
-                return $directory->getName() == $dirName;
-            }
-        );
+        // Change the search engine scope.
+        $this->searchEngine->setScope($collectionScope);
+
+        // The collection found on fragment search.
+        $foundCollection = $this->searchEngine->search($directoryName);
+            
+        foreach ($collectionScope->all() as $directory) {
+
+            // Merge the collection found with the collection to return.
+            $foundCollection->merge(
+                $this->findOnCollectionByName($directoryName, $directory->getSubDirectories())
+            );
+        }
+
+        return $foundCollection;
     }
 }
