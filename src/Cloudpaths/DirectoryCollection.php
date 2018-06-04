@@ -72,6 +72,18 @@ class DirectoryCollection implements Arrayable
     }
 
     /**
+     * Merge the collection items with the items of another collection.
+     *
+     * @param  Cloudpaths\DirectoryCollection $directories
+     * @return this
+     */
+    public function merge(DirectoryCollection $directories)
+    {
+        $this->items = array_merge($this->items, $directories->toArray());
+        return $this;
+    }
+
+    /**
      * Iterate through each item and execute a callback with item.
      * The returned object will overwrite the original item.
      *
