@@ -84,6 +84,16 @@ class DirectoryCollection implements Arrayable
     }
 
     /**
+     * Remove and return the first item on collection.
+     *
+     * @return Cloudpaths\Contracts\Directory|null
+     */
+    public function shift()
+    {
+        return array_shift($this->items);
+    }
+
+    /**
      * Iterate through each item and execute a callback with item.
      * The returned object will overwrite the original item.
      *
