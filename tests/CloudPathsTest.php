@@ -8,6 +8,8 @@ use Cloudpaths\DirFactory;
 use Cloudpaths\Directory;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Config\Repository;
+use Cloudpaths\Contracts\Factory;
+use Cloudpaths\Contracts\Directory as DirectoryContract;
 
 class CloudpathsTest extends TestCase
 {
@@ -423,6 +425,72 @@ class CloudpathsTest extends TestCase
             $topLevelDirectory->getParent()->getName(),
             $config['root']
         );
+    }
+
+    /**
+     * Should change the root directory from root resolver.
+     *
+     * @return void
+     */
+    public function testRootResolverReturningValidDirectory()
+    {
+        $config = [
+            'root' => 'foo'
+        ];
+
+        $cloudpaths = $this->newCloudpaths($config);
+        $cloudpaths->setRootResolver(
+            function (DirectoryContract $root, Factory $factory) {
+                return $factory->create('newRoot');
+            }
+        );
+
+        $this->assertEquals(
+            $cloudpaths->getRoot()->getName(),
+            'newRoot'
+        );
+    }
+
+    /**
+     * Should not change the root directory.
+     *
+     * @return void
+     */
+    public function testRootResolverReturningNull()
+    {
+        $config = [
+            'root' => 'foo'
+        ];
+
+        $cloudpaths = $this->newCloudpaths($config);
+        $cloudpaths->setRootResolver(
+            function (DirectoryContract $root) {
+                // Do some stuff with root directory and return null.
+            }
+        );
+
+        $this->assertEquals(
+            $cloudpaths->getRoot()->getName(),
+            $config['root']
+        );
+    }
+
+    /**
+     * Should throw \InvalidArgumentException.
+     *
+     * @return void
+     */
+    public function testRootResolverReturningInvalidObject()
+    {
+        $cloudpaths = $this->newCloudpaths();
+        
+        $this->expectException(\InvalidArgumentException::class);
+
+        $cloudpaths->setRootResolver(
+            function (DirectoryContract $root) {
+                return 'foo';
+            }
+        )->getRoot();
     }
     
     /**
