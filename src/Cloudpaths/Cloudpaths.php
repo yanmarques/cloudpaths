@@ -67,10 +67,10 @@ class Cloudpaths extends Mapper
      */
     public function __construct(
         Repository $config,
-        Factory $factory,
+        Factory $factory = null,
         Searcher $searchEngine = null
     ) {
-        $this->factory = $factory;
+        $this->factory = $factory ?: new DirFactory;
 
         // Create a new search engine if no engine is provided.
         $this->searchEngine = $searchEngine ?: new Engine(
