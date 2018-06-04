@@ -10,7 +10,7 @@ class DirectoryTest extends TestCase
 {
     /**
      * Should create an instance with foo name.
-     * 
+     *
      * @return void
      */
     public function testCreateWithFooName()
@@ -24,7 +24,7 @@ class DirectoryTest extends TestCase
     
     /**
      * Should create an instance with empty subdirectories.
-     * 
+     *
      * @return void
      */
     public function testCreateWithEmptySubdirectories()
@@ -35,7 +35,7 @@ class DirectoryTest extends TestCase
 
     /**
      * Should create an instance with subdirectories.
-     * 
+     *
      * @return void
      */
     public function testCreateWithSubdirectories()
@@ -47,7 +47,7 @@ class DirectoryTest extends TestCase
 
         $collection = new DirectoryCollection;
 
-        foreach($subDirectories as $directory) {
+        foreach ($subDirectories as $directory) {
             $collection->push($directory);
         }
 
@@ -60,7 +60,7 @@ class DirectoryTest extends TestCase
 
     /**
      * Should create an instance with parent directory.
-     * 
+     *
      * @return void
      */
     public function testCreateWithParent()
@@ -72,13 +72,13 @@ class DirectoryTest extends TestCase
 
         $collection = new DirectoryCollection;
 
-        foreach($subDirectories as $directory) {
+        foreach ($subDirectories as $directory) {
             $collection->push($directory);
         }
 
         $parent = new Directory('baz');
         $directory = new Directory('foo', $collection, $parent);
-        
+       
         $this->assertEquals(
             $directory->getParent(),
             $parent
@@ -88,7 +88,7 @@ class DirectoryTest extends TestCase
     /**
      * Should assert that each top level subdirectory has
      * the current directory instance as parent.
-     * 
+     *
      * @return void
      */
     public function testParentSubDirectories()
@@ -100,14 +100,15 @@ class DirectoryTest extends TestCase
 
         $collection = new DirectoryCollection;
 
-        foreach($subDirectories as $directory) {
+        foreach ($subDirectories as $directory) {
             $collection->push($directory);
         }
 
         $directory = new Directory('foo', $collection);
+        
         $subDirectories = $directory->getSubDirectories()->all();
 
-        foreach($subDirectories as $subDirectory) {
+        foreach ($subDirectories as $subDirectory) {
             $this->assertEquals(
                 $directory,
                 $subDirectory->getParent()
@@ -117,7 +118,7 @@ class DirectoryTest extends TestCase
 
     /**
      * Should change the parent for directory.
-     * 
+     *
      * @return void
      */
     public function testSettingANewParentForDirectory()
@@ -130,6 +131,36 @@ class DirectoryTest extends TestCase
         $this->assertEquals(
             $directory->getParent(),
             $newParent
+        );
+    }
+
+    /**
+     * Should build the full directory with the parent.
+     *
+     * @return void
+     */
+    public function testGetFullPathWithParentDirectory()
+    {
+        $parent = new Directory('root');
+        $directory = new Directory('foo', null, $parent);
+        $this->assertEquals(
+            $directory->getFullPath(),
+            sprintf('%s/%s', $parent->getName(), $directory->getName())
+        );
+    }
+
+    /**
+     * Should build only the current directory because directory
+     * has no parent.
+     *
+     * @return void
+     */
+    public function testGetFullPathWithoutParentDirectory()
+    {
+        $directory = new Directory('foo');
+        $this->assertEquals(
+            $directory->getFullPath(),
+            $directory->getName()
         );
     }
 }
