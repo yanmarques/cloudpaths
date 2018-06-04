@@ -2,6 +2,8 @@
 
 namespace Cloudpaths;
 
+use Closure;
+use InvalidArgumentException;
 use Illuminate\Support\Arr;
 use Cloudpaths\Search\Engine;
 use Cloudpaths\Contracts\Factory;
@@ -49,6 +51,13 @@ class Cloudpaths extends Mapper
     protected $searchEngine;
 
     /**
+     * The callback to resolve root directory.
+     *
+     * @var \Closure
+     */
+    protected $rootResolver;
+
+    /**
      * Class constructor.
      *
      * @param  Illuminate\Contracts\Config\Repository $config
@@ -71,6 +80,11 @@ class Cloudpaths extends Mapper
         // Get the directory collection from engine scope.
         $this->directories = $this->searchEngine->getScope()
             ->getDirectoryCollection();
+
+        // Set the default rootResolver.
+        $this->setRootResolver(function ($root) {
+            return $root;
+        });
 
         $this->config = $this->setConfig($config);
     }
@@ -176,7 +190,7 @@ class Cloudpaths extends Mapper
      */
     public function getRoot()
     {
-        return $this->root;
+        return $this->callRootResolver() ?: $this->root;
     }
 
     /**
@@ -192,6 +206,18 @@ class Cloudpaths extends Mapper
     }
 
     /**
+     * Set the root resolver callback.
+     *
+     * @param  \Closure $rootResolver
+     * @return this
+     */
+    public function setRootResolver(Closure $rootResolver)
+    {
+        $this->rootResolver = $rootResolver;
+        return $this;
+    }
+
+    /**
      * Read configuration repository to discover new
      * directories and set up a base directory. An array
      * with custom configuration is allowed.
@@ -201,13 +227,10 @@ class Cloudpaths extends Mapper
      */
     protected function readConfig()
     {
-        if ($this->config->has('root')) {
-
-            // Create a directory for base directory.
-            $this->root = $this->factory->create(
-                $this->config->get('root')
-            );
-        }
+        // Create a directory for base directory.
+        $this->root = $this->factory->create(
+            $this->config->get('root') ?: ''
+        );
 
         if ($this->config->has('paths')) {
 
@@ -240,5 +263,27 @@ class Cloudpaths extends Mapper
         }
 
         return $foundCollection;
+    }
+
+    /**
+     * Resolve the root resolver callback. The function receives the directory
+     * factory and the root directory as argument.
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return Cloudpaths\Contracts\Directory|null
+     */
+    protected function callRootResolver()
+    {
+        // Execute the function and return the result.
+        $result = call_user_func($this->rootResolver, $this->root, $this->factory);
+
+        if ($result && ! $result instanceof Directory) {
+
+            // Invalid returned object from resolver.
+            throw new InvalidArgumentException('Could not resolve the root directory');
+        }
+
+        return $result;
     }
 }
