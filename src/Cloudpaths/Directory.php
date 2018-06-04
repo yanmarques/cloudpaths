@@ -2,6 +2,7 @@
 
 namespace Cloudpaths;
 
+use Illuminate\Support\Arr;
 use Cloudpaths\Contracts\Directory as DirectoryContract;
 
 class Directory implements DirectoryContract
@@ -87,6 +88,33 @@ class Directory implements DirectoryContract
     public function getParent()
     {
         return $this->parent;
+    }
+
+    /**
+     * Build the full path until the root directory.
+     *
+     * @return string
+     */
+    public function getFullPath()
+    {
+        // The nested parent for each parent directory.
+        $nestedParent = $this->parent;
+
+        // Stores the full path. Initializes with the current
+        // directory name.
+        $fullPath = [$this->name];
+
+        while ($nestedParent) {
+
+            // Add the parent name to the beggining of the list.
+            $fullPath = Arr::prepend($fullPath, $nestedParent->getName());
+            
+            // Set the next nested parent as the parent of the last
+            // nested parent.
+            $nestedParent = $nestedParent->getParent();
+        }
+
+        return implode('/', $fullPath);
     }
 
     /**

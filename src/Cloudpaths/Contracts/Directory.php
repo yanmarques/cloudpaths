@@ -32,4 +32,11 @@ interface Directory
      * @return Cloudpaths\Contracts\Directory|null
      */
     public function getParent();
+
+    /**
+     * Build the full path until the root directory.
+     *
+     * @return string
+     */
+    public function getFullPath();
 }
