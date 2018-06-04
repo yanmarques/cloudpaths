@@ -284,4 +284,39 @@ class DirectoryCollectionTest extends TestCase
           array_merge([$onlyDirectory], $directoriesToAdd)
         );
     }
+
+    /**
+     * Should return null from shift method.
+     *
+     * @return void
+     */
+    public function testShiftWithEmptyCollection()
+    {
+        $collection = new DirectoryCollection;
+        $this->assertNull($collection->shift());
+    }
+
+    /**
+     * Should return the first registered item.
+     * Should remove item from collection.
+     *
+     * @return void
+     */
+    public function testShiftWithNotEmptyCollection()
+    {
+        $directories = [
+            new Directory('foo'),
+            new Directory('bar')
+        ];
+
+        $collection = new DirectoryCollection;
+
+        // Register the directories.
+        foreach ($directories as $directory) {
+            $collection->push($directory);
+        }
+
+        $this->assertEquals($collection->shift(), $directories[0]);
+        $this->assertEquals($collection->all(), [$directories[1]]);
+    }
 }
