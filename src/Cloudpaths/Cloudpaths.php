@@ -88,7 +88,7 @@ class Cloudpaths extends Mapper
         $directory = $this->factory->create(
             $directory,
             $subDirectories
-        );
+        )->setParent($this->getRoot());
 
         // Append the newly directory to the directories list.
         $this->directories->push($directory);
