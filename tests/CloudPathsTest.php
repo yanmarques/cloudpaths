@@ -257,7 +257,7 @@ class CloudpathsTest extends TestCase
      *
      * @return void
      */
-    public function testFindWithValidPath()
+    public function testFindDirectoryWithValidPath()
     {
         $paths = [
             'foo' => [
@@ -288,7 +288,7 @@ class CloudpathsTest extends TestCase
      *
      * @return void
      */
-    public function testFindWithInvalidPath()
+    public function testFindDirectoryWithInvalidPath()
     {
         $paths = [
             'foo' => [
@@ -311,7 +311,7 @@ class CloudpathsTest extends TestCase
      *
      * @return void
      */
-    public function testFindManyWithValidPath()
+    public function testFindDirectoryManyWithValidPath()
     {
         $paths = [
             'foo' => [
@@ -369,7 +369,7 @@ class CloudpathsTest extends TestCase
      *
      * @return void
      */
-    public function testFindToplLevelDirectory()
+    public function testFindDirectoryToplLevelDirectory()
     {
         $paths = [
             'foo' => [
@@ -491,6 +491,86 @@ class CloudpathsTest extends TestCase
                 return 'foo';
             }
         )->getRoot();
+    }
+
+    /**
+     * Should get a valid path for directory.
+     *
+     * @return void
+     */
+    public function testFindWithValidPath()
+    {
+        $expectedPath = 'root/foo/bar/baz';
+
+        $config = [
+            'root' => 'root',
+            'paths' => [
+                'foo' => [
+                    'bar' => [
+                        'baz'
+                    ]
+                ]
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudpaths($config);
+
+        $found = $cloudpaths->find('foo.baz');
+        
+        $this->assertFalse($found->isEmpty());
+        $this->assertEquals($expectedPath, $found->first());
+    }
+
+    /**
+     * Should get an empty collection.
+     *
+     * @return void
+     */
+    public function testFindWithInvalidPath()
+    {
+        $config = [
+            'paths' => [
+                'foo' => [
+                    'bar'
+                ]
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudpaths($config);
+
+        $found = $cloudpaths->find('foo.any');
+        
+        $this->assertTrue($found->isEmpty());
+    }
+
+    /**
+     * Should get the path replacing bar to baz.
+     *
+     * @return void
+     */
+    public function testFindWithValidPathWithValidReplace()
+    {
+        $expectedPath = 'root/foo/baz/any';
+        $config = [
+            'root' => 'root',
+            'paths' => [
+                'foo' => [
+                    'bar' => [
+                        'any'
+                    ]
+                ]
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudpaths($config);
+
+        $found = $cloudpaths->find('foo.any', ['bar' => 'baz']);
+        
+        $this->assertFalse($found->isEmpty());
+        $this->assertEquals(
+            $found->first(),
+            $expectedPath
+        );
     }
     
     /**
