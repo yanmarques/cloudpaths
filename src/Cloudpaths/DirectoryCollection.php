@@ -2,170 +2,77 @@
 
 namespace Cloudpaths;
 
-use Closure;
-use Illuminate\Support\Arr;
 use InvalidArgumentException;
-use Cloudpaths\Contracts\Directory;
-use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Collection;
+use Cloudpaths\Contracts\Directory as DirectoryContract;
 
-class DirectoryCollection implements Arrayable
+class DirectoryCollection extends Collection
 {
     /**
-     * The collection items.
+     * Class constructor.
      *
-     * @var array
+     * @return void
      */
-    protected $items = [];
+    public function __construct($items = [])
+    {
+        static::setItemsProxy($items, $this);
+    }
 
     /**
-     * Push new directory onto the end of collection.
+     * Create a new collection instance if the value isn't one already.
      *
-     * @param  Cloudpaths\Directory
-     * @return this
+     * @param  mixed  $items
+     * @return static
      */
-    public function push(Directory $directory)
+    public static function make($items = [])
     {
-        $this->items[] = $directory;
+        $instance = new static;
+
+        // Proxy the items to the instance.
+        static::setItemsProxy($items, $instance);
+
+        return $instance;
+    }
+
+    /**
+     * Set the item at a given offset.
+     *
+     * @param  mixed  $key
+     * @param  mixed  $value
+     * @return void
+     */
+    public function offsetSet($key, $value)
+    {
+        throw_unless($value instanceof DirectoryContract, new InvalidArgumentException(
+            'Value pushed must be a '.
+            DirectoryContract::class.' instance.'
+        ));
+
+        parent::offsetSet($key, $value);
 
         return $this;
     }
 
     /**
-     * Get the first directory on collection that pass the truth test.
+     * Proxy the items setting of the collection instance.
      *
-     * @param \Closure|null $callback
-     * @return Cloudpaths\Directory|null
+     * @param  mixed $items
+     * @param  Cloudpaths\DirectoryCollection $instance
+     * @return void
      */
-    public function first(Closure $callback = null)
+    protected static function setItemsProxy($items = [], DirectoryCollection $instance)
     {
-        return Arr::first($this->items, $callback);
-    }
+        if (! is_array($items)) {
 
-    /**
-     * Get the last directory on collection.
-     *
-     * @return Cloudpaths\Directory|null
-     */
-    public function last()
-    {
-        return Arr::last($this->items);
-    }
-
-    /**
-     * Get all items as plain array.
-     *
-     * @return array
-     */
-    public function all()
-    {
-        return $this->toArray();
-    }
-
-    /**
-     * Return wheter the collection is empty.
-     *
-     * @return bool
-     */
-    public function isEmpty()
-    {
-        return empty($this->items);
-    }
-
-    /**
-     * Merge the collection items with the items of another collection.
-     *
-     * @param  Cloudpaths\DirectoryCollection $directories
-     * @return this
-     */
-    public function merge(DirectoryCollection $directories)
-    {
-        $this->items = array_merge($this->items, $directories->toArray());
-
-        return $this;
-    }
-
-    /**
-     * Remove and return the first item on collection.
-     *
-     * @return Cloudpaths\Contracts\Directory|null
-     */
-    public function shift()
-    {
-        return array_shift($this->items);
-    }
-
-    /**
-     * Iterate through each item and execute a callback with item.
-     * The returned object will overwrite the original item.
-     *
-     * @throws  InvalidArgumentException
-     *
-     * @param  \Closure $callback
-     * @return Cloudpaths\DirectoryCollection
-     */
-    public function map(Closure $callback)
-    {
-        // Array with all returned values that will compose
-        // the new collection.
-        $newItems = [];
-
-        foreach ($this->items as $item) {
-
-            // Execute user function and receive the result.
-            $result = $this->call($callback, $item);
-
-            if (! $result || ! $result instanceof Directory) {
-
-                // Invalid returned value.
-                throw new InvalidArgumentException(
-                    'Invalid return value for collection.'
-                );
-            }
-
-            // Overwrite the item with the result value.
-            $newItems[] = $result;
+            // Create an array of the item.
+            $items = [$items];
         }
-
-        return $this->newInstance($newItems);
-    }
-
-    /**
-     * Get the instance as an array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->items;
-    }
-
-    /**
-     * Execute the callback with the directory as argument.
-     *
-     * @param  \Closure $callback
-     * @param  Cloudpaths\Directory $directory
-     * @return mixed
-     */
-    protected function call(Closure $callback, Directory $directory)
-    {
-        // Receive the function result.
-        return call_user_func($callback, $directory);
-    }
-
-    /**
-     * Create a new instance pushing each item to collection.
-     *
-     * @param  array $items
-     * @return Cloudpaths\DirectoryCollection
-     */
-    protected function newInstance(array $items)
-    {
-        $collection = new static;
 
         foreach ($items as $item) {
-            $collection->push($item);
+            
+            // Set each item as new item passing the offset proxy to force the
+            // items to implement the directory interface.
+            $instance->offsetSet(null, $item);
         }
-
-        return $collection;
     }
 }
