@@ -139,9 +139,32 @@ class Cloudpaths extends Mapper
     /**
      * Search for a directory and apply the replaces.
      *
-     * @return string|null
+     * @param  string $input
+     * @param  array $replacements
+     * @return Illuminate\Support\Collection
      */
     public function find(string $input, array $replacements = [])
+    {
+        // Find the directories by the input.
+        $resultCollection = $this->findDirectory($input);
+
+        return new Collection(
+            $this->applyReplaces(
+                $this->getPathsFromCollection($resultCollection),
+                $replacements
+            )
+        );
+    }
+
+    /**
+     * Search for a directory and apply the replaces. Returns a collection with
+     * the directories class.
+     *
+     * @param  string $input
+     * @param  array $replacements
+     * @return Cloudpaths\DirectoryCollection
+     */
+    public function findDirectory(string $input)
     {
         // Get parsed dot notation input.
         $fragments = $this->parseInput($input);
@@ -168,24 +191,15 @@ class Cloudpaths extends Mapper
         if (count($fragments) < 1) {
 
             // Return the top level directory.
-            return new Collection(
-                $this->applyReplaces($topLevelDirectory->getFullPath(), $replacements)
-            );
+            return new DirectoryCollection($topLevelDirectory);
         }
         
         // Get all directories found on the top level directory by the fragments
         // names. The top level subdirectories are looked up looking for directories
         // that matches the fragment name.
-        $foundCollection = $this->findManyByName(
+        return $this->findManyByName(
             $fragments,
             $topLevelDirectory
-        );
-        
-        return new Collection(
-            $this->applyReplaces(
-                $this->getPathsFromCollection($foundCollection),
-                $replacements
-            )
         );
     }
 

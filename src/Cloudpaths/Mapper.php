@@ -22,9 +22,22 @@ abstract class Mapper
     abstract public function mapArray(array $paths);
 
     /**
-     * Search for a directory and apply the replaces.
+     * Search for a directory and apply the replaces. Returns a collection with
+     * the directories path.
      *
-     * @return string|null
+     * @param  string $input
+     * @param  array $replacements
+     * @return Illuminate\Support\Collection
      */
     abstract public function find(string $directory, array $replacements = []);
+
+    /**
+     * Search for a directory and apply the replaces. Returns a collection with
+     * the directories class.
+     *
+     * @param  string $input
+     * @param  array $replacements
+     * @return Cloudpaths\DirectoryCollection
+     */
+    abstract public function findDirectory(string $directory);
 }
