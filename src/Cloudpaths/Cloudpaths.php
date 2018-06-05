@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Cloudpaths\Search\Engine;
 use Cloudpaths\Contracts\Factory;
 use Cloudpaths\Contracts\Searcher;
+use Illuminate\Support\Collection;
 use Cloudpaths\Traits\ParsesDotNotation;
 use Illuminate\Contracts\Config\Repository;
 
@@ -161,26 +162,31 @@ class Cloudpaths extends Mapper
             return $foundCollection;
         }
 
-        // The main directory to get the subDirectories.
-        $mainDirectory = $foundCollection->first();
+        // The top level directory to get the subDirectories.
+        $topLevelDirectory = $foundCollection->first();
 
-        if (count($fragments) >= 1) {
+        if (count($fragments) < 1) {
 
-            // Remove the top level directory from the found collection
-            $foundCollection->shift();
+            // Return the top level directory.
+            return new Collection(
+                $this->applyReplaces($topLevelDirectory->getFullPath(), $replacements)
+            );
         }
-
-        foreach ($fragments as $fragment) {
-
-            // Merge the found collection with the collection result
-            // from the search of the fragment name.
-            $foundCollection->merge($this->findOnCollectionByName(
-                $fragment,
-                $mainDirectory->getSubDirectories()
-            ));
-        }
-
-        return $foundCollection;
+        
+        // Get all directories found on the top level directory by the fragments
+        // names. The top level subdirectories are looked up looking for directories
+        // that matches the fragment name.
+        $foundCollection = $this->findManyByName(
+            $fragments,
+            $topLevelDirectory
+        );
+        
+        return new Collection(
+            $this->applyReplaces(
+                $this->getPathsFromCollection($foundCollection),
+                $replacements
+            )
+        );
     }
 
     /**
@@ -257,7 +263,7 @@ class Cloudpaths extends Mapper
         foreach ($collectionScope->all() as $directory) {
 
             // Merge the collection found with the collection to return.
-            $foundCollection->merge(
+            $foundCollection = $foundCollection->merge(
                 $this->findOnCollectionByName($directoryName, $directory->getSubDirectories())
             );
         }
@@ -285,5 +291,71 @@ class Cloudpaths extends Mapper
         }
 
         return $result;
+    }
+
+    /**
+     * Find all ocorrences of the directories on the main directory subdirectories.
+     *
+     * @param  array $directoryNames
+     * @param  Cloudpaths\Contracts\Directory $mainDirectory
+     * @return Cloudpaths\DirectoryCollection
+     */
+    protected function findManyByName(array $directoryNames, Directory $mainDirectory)
+    {
+        // Initializes the collection found.
+        $foundCollection = new DirectoryCollection;
+
+        foreach ($directoryNames as $name) {
+
+            // Merge the found collection with the collection result
+            // from the search of the fragment name.
+            $foundCollection = $foundCollection->merge($this->findOnCollectionByName(
+                $name,
+                $mainDirectory->getSubDirectories()
+            ));
+        }
+
+        return $foundCollection;
+    }
+
+    /**
+     * Replace the paths as an array with the replacements.
+     *
+     * @param  mixed  $paths
+     * @param  array  $replacements
+     * @return array
+     */
+    protected function applyReplaces($paths, array $replacements)
+    {
+        $newPaths = [];
+
+        foreach ((array) $paths as $path) {
+            foreach ($replacements as $key => $replaces) {
+                
+                // Apply the string replace on the path.
+                $newPaths[] = str_replace_first($key, $replaces, $path);
+            }
+        }
+
+        return $newPaths;
+    }
+
+    /**
+     * Return an array with the paths of each directory on collection.
+     *
+     * @param  Cloudpaths\DirectoryCollection $collection
+     * @return array
+     */
+    protected function getPathsFromCollection(DirectoryCollection $collection)
+    {
+        $paths = [];
+
+        $collection->each(function (Directory $directory) use (&$paths) {
+
+            // Push the directory path to list.
+            $paths[] = $directory->getFullPath();
+        });
+
+        return $paths;
     }
 }
