@@ -3,6 +3,7 @@
     "description": "A mapper to create paths for cloud storage",
     "type": "project",
     "license": "MIT",
+    "url": "https://github.com/yanmarques/cloudpaths",
     "authors": [
         {
             "name": "Yan Marques",
