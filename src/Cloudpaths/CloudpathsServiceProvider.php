@@ -2,6 +2,7 @@
 
 namespace Cloudpaths;
 
+use Illuminate\Config\Repository;
 use Illuminate\Support\ServiceProvider;
 
 class CloudpathsServiceProvider extends ServiceProvider
@@ -33,7 +34,9 @@ class CloudpathsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('Cloudpaths', function ($app) {
-            return new Cloudpaths($app['config']['cloudpaths']);
+            return new Cloudpaths(
+                new Repository($app['config']['cloudpaths'])
+            );
         });
     }
 
