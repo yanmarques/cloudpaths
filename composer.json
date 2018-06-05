@@ -28,5 +28,8 @@
             "Tests\\Cloudpaths\\": "tests/"
         }
     },
+    "files": [
+        "vendor/illuminate/support/helpers.php"
+    ],
     "minimum-stability": "stable"
 }
