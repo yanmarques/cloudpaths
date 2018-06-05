@@ -147,7 +147,7 @@ class Cloudpaths extends Mapper
     {
         // Find the directories by the input.
         $resultCollection = $this->findDirectory($input);
-
+        
         return new Collection(
             $this->applyReplaces(
                 $this->getPathsFromCollection($resultCollection),
@@ -341,17 +341,18 @@ class Cloudpaths extends Mapper
      */
     protected function applyReplaces($paths, array $replacements)
     {
-        $newPaths = [];
+        // Create an array for the paths.
+        $paths = (array) $paths;
 
-        foreach ((array) $paths as $path) {
+        foreach ($paths as $index => $path) {
             foreach ($replacements as $key => $replaces) {
                 
                 // Apply the string replace on the path.
-                $newPaths[] = str_replace_first($key, $replaces, $path);
+                $paths[$index] = str_replace_first($key, $replaces, $path);
             }
         }
 
-        return $newPaths;
+        return $paths;
     }
 
     /**
