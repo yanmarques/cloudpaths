@@ -108,7 +108,7 @@ class Directory implements DirectoryContract
 
             // Add the parent name to the beggining of the list.
             $fullPath = Arr::prepend($fullPath, $nestedParent->getName());
-            
+
             // Set the next nested parent as the parent of the last
             // nested parent.
             $nestedParent = $nestedParent->getParent();
