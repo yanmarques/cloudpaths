@@ -60,7 +60,7 @@ Laravel allows us to use Facade classes as aliases for registered services on th
 Once the service provider has been registered the Cloudpaths application, it will try to read the configuration from file. To configure it, you must publish the configuration file to the ```config``` path. Open the console and run on your project:
 
 ```shell
-php artisan vendor:publish Cloudpaths\CloudpathsServiceProvider::class
+php artisan vendor:publish --provider=Cloudpaths\CloudpathsServiceProvider
 ```
 
 ## Cloudpaths
