@@ -54,7 +54,7 @@ class CloudpathsTest extends TestCase
         $cloudpaths = $this->newCloudpaths();
         $cloudpaths->map('foo');
         
-        $newlyDir = $cloudpaths->find('foo')->first();
+        $newlyDir = $cloudpaths->findDirectory('foo')->first();
         
         $this->assertInstanceOf(
             Directory::class,
@@ -79,7 +79,7 @@ class CloudpathsTest extends TestCase
         $cloudpaths = $this->newCloudpaths();
         $cloudpaths->map('foo', $subDirectories);
         
-        $newlyDir = $cloudpaths->find('foo')->first();
+        $newlyDir = $cloudpaths->findDirectory('foo')->first();
         
         $this->assertInstanceOf(
             Directory::class,
@@ -115,7 +115,7 @@ class CloudpathsTest extends TestCase
         $cloudpaths = $this->newCloudpaths();
         $cloudpaths->map('foo', $subDirectories);
         
-        $newlyDir = $cloudpaths->find('foo')->first();
+        $newlyDir = $cloudpaths->findDirectory('foo')->first();
         
         $this->assertInstanceOf(
             Directory::class,
@@ -156,7 +156,7 @@ class CloudpathsTest extends TestCase
         $cloudpaths = $this->newCloudpaths();
         $cloudpaths->mapArray(['foo']);
         
-        $newlyDir = $cloudpaths->find('foo')->first();
+        $newlyDir = $cloudpaths->findDirectory('foo')->first();
         
         $this->assertInstanceOf(
             Directory::class,
@@ -183,7 +183,7 @@ class CloudpathsTest extends TestCase
             'foo' => $subDirectories
         ]);
         
-        $newlyDir = $cloudpaths->find('foo')->first();
+        $newlyDir = $cloudpaths->findDirectory('foo')->first();
         
         $this->assertInstanceOf(
             Directory::class,
@@ -221,7 +221,7 @@ class CloudpathsTest extends TestCase
             'foo' => $subDirectories
         ]);
         
-        $newlyDir = $cloudpaths->find('foo')->first();
+        $newlyDir = $cloudpaths->findDirectory('foo')->first();
         
         $this->assertInstanceOf(
             Directory::class,
@@ -268,8 +268,8 @@ class CloudpathsTest extends TestCase
         ];
 
         $cloudpaths = $this->newCloudPaths(compact('paths'));
-        $found = $cloudpaths->find('foo.baz');
-
+        $found = $cloudpaths->findDirectory('foo.baz');
+        
         $this->assertFalse($found->isEmpty());
 
         $directory = $found->first();
@@ -299,7 +299,7 @@ class CloudpathsTest extends TestCase
         ];
 
         $cloudpaths = $this->newCloudPaths(compact('paths'));
-        $found = $cloudpaths->find('foo.any');
+        $found = $cloudpaths->findDirectory('foo.any');
 
         $this->assertTrue($found->isEmpty());
     }
@@ -323,7 +323,7 @@ class CloudpathsTest extends TestCase
         ];
 
         $cloudpaths = $this->newCloudPaths(compact('paths'));
-        $found = $cloudpaths->find('foo.bar');
+        $found = $cloudpaths->findDirectory('foo.bar');
 
         $this->assertFalse($found->isEmpty());
 
@@ -380,7 +380,7 @@ class CloudpathsTest extends TestCase
         ];
 
         $cloudpaths = $this->newCloudPaths(compact('paths'));
-        $found = $cloudpaths->find('foo');
+        $found = $cloudpaths->findDirectory('foo');
 
         $this->assertFalse($found->isEmpty());
 
@@ -416,7 +416,7 @@ class CloudpathsTest extends TestCase
         ];
 
         $cloudpaths = $this->newCloudpaths($config);
-        $collectionFound = $cloudpaths->find('foo');
+        $collectionFound = $cloudpaths->findDirectory('foo');
 
         $this->assertFalse($collectionFound->isEmpty());
 
