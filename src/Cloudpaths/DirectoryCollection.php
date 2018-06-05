@@ -69,7 +69,7 @@ class DirectoryCollection extends Collection
         }
 
         foreach ($items as $item) {
-            
+
             // Set each item as new item passing the offset proxy to force the
             // items to implement the directory interface.
             $instance->offsetSet(null, $item);
