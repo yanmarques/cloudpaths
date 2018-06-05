@@ -3,9 +3,9 @@
 namespace Cloudpaths;
 
 use Closure;
-use InvalidArgumentException;
 use Illuminate\Support\Arr;
 use Cloudpaths\Search\Engine;
+use InvalidArgumentException;
 use Cloudpaths\Contracts\Factory;
 use Cloudpaths\Contracts\Searcher;
 use Illuminate\Support\Collection;
@@ -147,7 +147,7 @@ class Cloudpaths extends Mapper
     {
         // Find the directories by the input.
         $resultCollection = $this->findDirectory($input);
-        
+
         return new Collection(
             $this->applyReplaces(
                 $this->getPathsFromCollection($resultCollection),
@@ -193,7 +193,7 @@ class Cloudpaths extends Mapper
             // Return the top level directory.
             return new DirectoryCollection($topLevelDirectory);
         }
-        
+
         // Get all directories found on the top level directory by the fragments
         // names. The top level subdirectories are looked up looking for directories
         // that matches the fragment name.
@@ -234,6 +234,7 @@ class Cloudpaths extends Mapper
     public function setRootResolver(Closure $rootResolver)
     {
         $this->rootResolver = $rootResolver;
+
         return $this;
     }
 
@@ -346,7 +347,7 @@ class Cloudpaths extends Mapper
 
         foreach ($paths as $index => $path) {
             foreach ($replacements as $key => $replaces) {
-                
+
                 // Apply the string replace on the path.
                 $paths[$index] = str_replace_first($key, $replaces, $path);
             }
