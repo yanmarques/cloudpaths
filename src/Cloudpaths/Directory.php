@@ -130,16 +130,18 @@ class Directory implements DirectoryContract
     }
 
     /**
-     * Set the subDirectories collection mapping throgh them and
+     * Set the subDirectories collection mapping through them and
      * relating each subDirectory with the instance.
      *
      * @param  Cloudpaths\DirectoryCollection
-     * @return void
+     * @return this
      */
     public function setSubDirectories(DirectoryCollection $subDirectories)
     {
         $this->subDirectories = $subDirectories->map(function ($directory) {
             return $directory->setParent($this);
         });
+
+        return $this;
     }
 }
