@@ -19,6 +19,15 @@ interface Directory
     public function getSubDirectories();
 
     /**
+     * Set the subDirectories collection mapping throgh them and
+     * relating each subDirectory with the instance.
+     *
+     * @param  Cloudpaths\DirectoryCollection
+     * @return void
+     */
+    public function setSubDirectories(DirectoryCollection $subDirectories);
+
+    /**
      * Set the parent directory of the instance.
      *
      * @param  Cloudpaths\Contracts\Directory $parent
