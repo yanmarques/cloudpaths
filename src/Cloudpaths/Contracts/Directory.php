@@ -34,9 +34,16 @@ interface Directory
     public function getParent();
 
     /**
-     * Build the full path until the root directory.
+     * Get the top level directory.
      *
-     * @return string
+     * @return Cloudpaths\Contracts\Directory
      */
-    public function getFullPath();
+    public function getTopLevelParent();
+
+    /**
+     * Build the parents history until the top level directory.
+     *
+     * @return Cloudpaths\DirectoryCollection
+     */
+    public function getParentHistory();
 }
