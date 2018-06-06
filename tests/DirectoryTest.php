@@ -135,17 +135,33 @@ class DirectoryTest extends TestCase
     }
 
     /**
-     * Should build the full directory with the parent.
+     * Should get the parent top level directory.
      *
      * @return void
      */
-    public function testGetFullPathWithParentDirectory()
+    public function testGetTopLevelParentWithParentDirectory()
     {
         $parent = new Directory('root');
         $directory = new Directory('foo', null, $parent);
+        
         $this->assertEquals(
-            $directory->getFullPath(),
-            sprintf('%s/%s', $parent->getName(), $directory->getName())
+            $directory->getTopLevelParent(),
+            $parent
+        );
+    }
+
+    /**
+     * Should get same directory instance as it's the top level directory.
+     *
+     * @return void
+     */
+    public function testGetTopLevelParentWithoutParentDirectory()
+    {
+        $directory = new Directory('foo');
+        
+        $this->assertEquals(
+            $directory->getTopLevelParent(),
+            $directory
         );
     }
 
@@ -155,12 +171,38 @@ class DirectoryTest extends TestCase
      *
      * @return void
      */
-    public function testGetFullPathWithoutParentDirectory()
+    public function testGetParentHistoryWithParentsDirectory()
+    {
+        $topLevelParent = new Directory('foo');
+        $nestedParent = new Directory('bar', null, $topLevelParent);
+        $directory = new Directory('baz', null, $nestedParent);
+        
+        $expectedCollection = DirectoryCollection::make([
+            $topLevelParent,
+            $nestedParent,
+            $directory
+        ]);
+
+        $this->assertEquals(
+            $directory->getParentHistory(),
+            $expectedCollection
+        );
+    }
+
+    /**
+     * Should return a collection with the current directory as it's the
+     * only directory.
+     *
+     * @return void
+     */
+    public function testGetParentHistoryWithoutParentsDirectory()
     {
         $directory = new Directory('foo');
+        $expectedCollection = DirectoryCollection::make($directory);
+
         $this->assertEquals(
-            $directory->getFullPath(),
-            $directory->getName()
+            $directory->getParentHistory(),
+            $expectedCollection
         );
     }
 }
