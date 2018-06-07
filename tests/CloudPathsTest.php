@@ -441,7 +441,7 @@ class CloudpathsTest extends TestCase
 
         $cloudpaths = $this->newCloudpaths($config);
         $cloudpaths->setRootResolver(
-            function (DirectoryContract $root, Factory $factory) {
+            function (Factory $factory, $root) {
                 return $factory->create('newRoot');
             }
         );
@@ -465,7 +465,7 @@ class CloudpathsTest extends TestCase
 
         $cloudpaths = $this->newCloudpaths($config);
         $cloudpaths->setRootResolver(
-            function (DirectoryContract $root) {
+            function ($root) {
                 // Do some stuff with root directory and return null.
             }
         );
@@ -488,7 +488,7 @@ class CloudpathsTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $cloudpaths->setRootResolver(
-            function (DirectoryContract $root) {
+            function ($root) {
                 return 'foo';
             }
         )->getRoot();
@@ -566,6 +566,39 @@ class CloudpathsTest extends TestCase
         $cloudpaths = $this->newCloudpaths($config);
 
         $found = $cloudpaths->find('foo.any', ['bar' => 'baz']);
+        
+        $this->assertFalse($found->isEmpty());
+        $this->assertEquals(
+            $found->first(),
+            $expectedPath
+        );
+    }
+
+    /**
+     * Should replace the multiple replacements.
+     *
+     * @return void
+     */
+    public function testFindValidPathWithReplaces()
+    {
+        $expectedPath = 'root/foo/baz/baz2';
+        $config = [
+            'root' => 'root',
+            'paths' => [
+                'foo' => [
+                    'bar' => [
+                        'baz1'
+                    ]
+                ]
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudpaths($config);
+
+        $found = $cloudpaths->find('foo.baz1', [
+            'bar' => 'baz',
+            'baz1' => 'baz2'
+        ]);
         
         $this->assertFalse($found->isEmpty());
         $this->assertEquals(
