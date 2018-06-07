@@ -6,8 +6,8 @@ use Closure;
 use Illuminate\Support\Arr;
 use Cloudpaths\Search\Engine;
 use InvalidArgumentException;
-use Illuminate\Pipeline\Pipeline;
 use Cloudpaths\Contracts\Factory;
+use Illuminate\Pipeline\Pipeline;
 use Cloudpaths\Contracts\Searcher;
 use Illuminate\Support\Collection;
 use Cloudpaths\Traits\ParsesDotNotation;
@@ -109,7 +109,7 @@ class Cloudpaths extends Mapper
         $this->setRootResolver(function ($root) {
             return $root;
         });
-    
+
         // Register the default providers.
         $this->registerDefaultProviders();
     }
@@ -217,7 +217,7 @@ class Cloudpaths extends Mapper
                 DirectoryCollection::make($topLevelDirectory)
             );
         }
-        
+
         // Get all directories found on the top level directory by the fragments
         // names. The top level subdirectories are looked up looking for directories
         // that matches the fragment name.
@@ -422,7 +422,7 @@ class Cloudpaths extends Mapper
     {
         $this->providers = [
             Providers\UrlEncodeProvider::class,
-            Providers\UrlBuilderProvider::class
+            Providers\UrlBuilderProvider::class,
         ];
     }
 
@@ -449,15 +449,15 @@ class Cloudpaths extends Mapper
     protected function prependRoot(DirectoryCollection $directories)
     {
         return $directories->map(function ($directory) {
-            
+
             // First nested parent to encode and reverse the order.
             $parents = $directory->getParentHistory();
-            
+
             // Get the top parent directory and set.
             $topLevelDirectory = $parents->shift()->setParent(
                 $this->getRoot()
             );
-            
+
             // Get the nested parent with all updated parents.
             return $parents->reduce(function ($carryParent, $parent) {
 
