@@ -485,7 +485,7 @@ class Cloudpaths extends Mapper
 
             return $directory;
         });
-        
+
         return $parents->reduce(function ($carryParent, $parent) {
             if ($carryParent) {
 
