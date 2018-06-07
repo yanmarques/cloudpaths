@@ -336,7 +336,10 @@ class Cloudpaths extends Mapper
     protected function callRootResolver()
     {
         // Execute the function and return the result.
-        $result = call_user_func($this->rootResolver, $this->root, $this->factory);
+        $result = $this->container->call(
+            $this->rootResolver,
+            [$this->root]
+        );
 
         if ($result && ! $result instanceof Directory) {
 
