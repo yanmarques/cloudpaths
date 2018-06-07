@@ -6,11 +6,13 @@ use Closure;
 use Illuminate\Support\Arr;
 use Cloudpaths\Search\Engine;
 use InvalidArgumentException;
+use Illuminate\Pipeline\Pipeline;
 use Cloudpaths\Contracts\Factory;
 use Cloudpaths\Contracts\Searcher;
 use Illuminate\Support\Collection;
 use Cloudpaths\Traits\ParsesDotNotation;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Container\Container;
 
 class Cloudpaths extends Mapper
 {
@@ -59,18 +61,37 @@ class Cloudpaths extends Mapper
     protected $rootResolver;
 
     /**
+     * The providers classes to pipe each result from
+     * directory search.
+     *
+     * @var array
+     */
+    protected $providers;
+
+    /**
+     * The container implementation.
+     *
+     * @var Illuminate\Contracts\Container\Container
+     */
+    protected $container;
+
+    /**
      * Class constructor.
      *
+     * @param  Illuminate\Contracts\Container\Container $container
      * @param  Illuminate\Contracts\Config\Repository $config
      * @param  Cloudpaths\Contracts\Factory $factory
      * @param  Cloudpaths\Contracts\Searcher $searchEngine
      * @return void
      */
     public function __construct(
+        Container $container,
         Repository $config,
         Factory $factory = null,
         Searcher $searchEngine = null
     ) {
+        $this->container = $container;
+
         $this->factory = $factory ?: new DirFactory;
 
         // Create a new search engine if no engine is provided.
@@ -82,12 +103,15 @@ class Cloudpaths extends Mapper
         $this->directories = $this->searchEngine->getScope()
             ->getDirectoryCollection();
 
+        $this->config = $this->setConfig($config);
+
         // Set the default rootResolver.
         $this->setRootResolver(function ($root) {
             return $root;
         });
-
-        $this->config = $this->setConfig($config);
+    
+        // Register the default providers.
+        $this->registerDefaultProviders();
     }
 
     /**
@@ -103,7 +127,7 @@ class Cloudpaths extends Mapper
         $directory = $this->factory->create(
             $directory,
             $subDirectories
-        )->setParent($this->getRoot());
+        );
 
         // Append the newly directory to the directories list.
         $this->directories->push($directory);
@@ -145,14 +169,12 @@ class Cloudpaths extends Mapper
      */
     public function find(string $input, array $replacements = [])
     {
-        // Find the directories by the input.
-        $resultCollection = $this->findDirectory($input);
+        // Find the directories by the input and send to providers
+        // pipeline.
+        $fullDirectoryPaths = $this->sendToPipeline($this->findDirectory($input));
 
-        return new Collection(
-            $this->applyReplaces(
-                $this->getPathsFromCollection($resultCollection),
-                $replacements
-            )
+        return Collection::make(
+            $this->applyReplaces($fullDirectoryPaths->toArray(), $replacements)
         );
     }
 
@@ -191,15 +213,19 @@ class Cloudpaths extends Mapper
         if (count($fragments) < 1) {
 
             // Return the top level directory.
-            return new DirectoryCollection($topLevelDirectory);
+            return $this->prependRoot(
+                DirectoryCollection::make($topLevelDirectory)
+            );
         }
-
+        
         // Get all directories found on the top level directory by the fragments
         // names. The top level subdirectories are looked up looking for directories
         // that matches the fragment name.
-        return $this->findManyByName(
-            $fragments,
-            $topLevelDirectory
+        return $this->prependRoot(
+            $this->findManyByName(
+                $fragments,
+                $topLevelDirectory
+            )
         );
     }
 
@@ -234,6 +260,19 @@ class Cloudpaths extends Mapper
     public function setRootResolver(Closure $rootResolver)
     {
         $this->rootResolver = $rootResolver;
+
+        return $this;
+    }
+
+    /**
+     * Add a new provider to run on pipeline.
+     *
+     * @param  mixed $provider
+     * @return this
+     */
+    public function addProvider($provider)
+    {
+        $this->providers = Arr::prepend($this->providers, $provider);
 
         return $this;
     }
@@ -357,21 +396,74 @@ class Cloudpaths extends Mapper
     }
 
     /**
-     * Return an array with the paths of each directory on collection.
+     * Send the directories collection to the providers pipeline.
      *
-     * @param  Cloudpaths\DirectoryCollection $collection
-     * @return array
+     * @param  Cloudpaths\DirectoryCollection $directories
+     * @return Illuminate\Support\Collection
      */
-    protected function getPathsFromCollection(DirectoryCollection $collection)
+    protected function sendToPipeline(DirectoryCollection $directories)
     {
-        $paths = [];
+        // Create the pipeline.
+        $pipeline = new Pipeline($this->container);
 
-        $collection->each(function (Directory $directory) use (&$paths) {
+        // Send the directories collection. After the collection has been piped through
+        // all providers execute the resolver and return the collection resulted.
+        return $pipeline->send($directories)
+            ->through($this->providers)
+            ->then($this->getPipelineResolver());
+    }
 
-            // Push the directory path to list.
-            $paths[] = $directory->getFullPath();
+    /**
+     * Register the default providers.
+     *
+     * @return void
+     */
+    protected function registerDefaultProviders()
+    {
+        $this->providers = [
+            Providers\UrlEncodeProvider::class,
+            Providers\UrlBuilderProvider::class
+        ];
+    }
+
+    /**
+     * Get the final pipeline resolver function.
+     *
+     * @return Closure
+     */
+    protected function getPipelineResolver()
+    {
+        return function ($collection) {
+            return $collection instanceof Collection
+                ? $collection
+                : collect($collection);
+        };
+    }
+
+    /**
+     * Prepend the root directory name to a collection of directories.
+     *
+     * @param  DirectoryCollection $directories
+     * @return Cloudpaths\DirectoryCollection
+     */
+    protected function prependRoot(DirectoryCollection $directories)
+    {
+        return $directories->map(function ($directory) {
+            
+            // First nested parent to encode and reverse the order.
+            $parents = $directory->getParentHistory();
+            
+            // Get the top parent directory and set.
+            $topLevelDirectory = $parents->shift()->setParent(
+                $this->getRoot()
+            );
+            
+            // Get the nested parent with all updated parents.
+            return $parents->reduce(function ($carryParent, $parent) {
+
+                // Set the parent as the parent carried by reducer.
+                return $parent->setParent($carryParent);
+            }, $topLevelDirectory);
         });
-
-        return $paths;
     }
 }

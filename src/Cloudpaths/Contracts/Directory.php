@@ -2,6 +2,8 @@
 
 namespace Cloudpaths\Contracts;
 
+use Cloudpaths\DirectoryCollection;
+
 interface Directory
 {
     /**
@@ -19,6 +21,15 @@ interface Directory
     public function getSubDirectories();
 
     /**
+     * Set the subDirectories collection mapping through them and
+     * relating each subDirectory with the instance.
+     *
+     * @param  Cloudpaths\DirectoryCollection
+     * @return this
+     */
+    public function setSubDirectories(DirectoryCollection $subDirectories);
+
+    /**
      * Set the parent directory of the instance.
      *
      * @param  Cloudpaths\Contracts\Directory $parent
@@ -34,9 +45,16 @@ interface Directory
     public function getParent();
 
     /**
-     * Build the full path until the root directory.
+     * Get the top level directory.
      *
-     * @return string
+     * @return Cloudpaths\Contracts\Directory
      */
-    public function getFullPath();
+    public function getTopLevelParent();
+
+    /**
+     * Build the parents history until the top level directory.
+     *
+     * @return Cloudpaths\DirectoryCollection
+     */
+    public function getParentHistory();
 }

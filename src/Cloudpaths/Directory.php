@@ -91,43 +91,57 @@ class Directory implements DirectoryContract
     }
 
     /**
-     * Build the full path until the root directory.
+     * Get the top level directory.
      *
-     * @return string
+     * @return Cloudpaths\Contracts\Directory
      */
-    public function getFullPath()
+    public function getTopLevelParent()
     {
-        // The nested parent for each parent directory.
+        return Arr::first($this->getParentHistory());
+    }
+
+    /**
+     * Build the parents history until the top level directory.
+     *
+     * @return Cloudpaths\DirectoryCollection
+     */
+    public function getParentHistory()
+    {
+        // Get the first nested parent of the current directory.
         $nestedParent = $this->parent;
 
-        // Stores the full path. Initializes with the current
-        // directory name.
-        $fullPath = [$this->name];
+        // Stores the parents history on a collection. Initializes with
+        // the current directory.
+        $history = DirectoryCollection::make($this);
 
         while ($nestedParent) {
 
-            // Add the parent name to the beggining of the list.
-            $fullPath = Arr::prepend($fullPath, $nestedParent->getName());
+            // Add the parent name to the beggining of the list while
+            // the has a nested parent.
+            $history[] = $nestedParent;
 
             // Set the next nested parent as the parent of the last
             // nested parent.
             $nestedParent = $nestedParent->getParent();
         }
 
-        return implode('/', $fullPath);
+        // Return the new collection with the reversed directories.
+        return $history->reverse();
     }
 
     /**
-     * Set the subDirectories collection mapping throgh them and
+     * Set the subDirectories collection mapping through them and
      * relating each subDirectory with the instance.
      *
      * @param  Cloudpaths\DirectoryCollection
-     * @return void
+     * @return this
      */
-    protected function setSubDirectories(DirectoryCollection $subDirectories)
+    public function setSubDirectories(DirectoryCollection $subDirectories)
     {
         $this->subDirectories = $subDirectories->map(function ($directory) {
             return $directory->setParent($this);
         });
+
+        return $this;
     }
 }
