@@ -77,13 +77,8 @@ class UrlEncodeProvider
         // First nested parent to encode and reverse the order.
         $parents = $directory->getParentHistory();
 
-        // Remove the first item on history, that is the current directory.
+        // Remove the current directory from parents collection.
         $parents->pop();
-
-        // Directory has no parent.
-        if ($parents->isEmpty()) {
-            return $directory;
-        }
 
         $parents->transform(function ($directory) {
 
@@ -91,7 +86,7 @@ class UrlEncodeProvider
             return $this->factory->create($this->encodeDirectoryName($directory));
         });
 
-        $parent = $parents->reduce(function ($carryParent, $parent) {
+        return $parents->push($directory)->reduce(function ($carryParent, $parent) {
             if ($carryParent) {
 
                 // Set the parent as the parent carried by reducer.
@@ -100,7 +95,5 @@ class UrlEncodeProvider
 
             return $parent;
         });
-
-        return $directory->setParent($parent);
     }
 }
