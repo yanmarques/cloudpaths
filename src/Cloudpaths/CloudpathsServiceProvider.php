@@ -8,13 +8,6 @@ use Illuminate\Support\ServiceProvider;
 class CloudpathsServiceProvider extends ServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
-    /**
      * Perform post-registration booting of services.
      *
      * @return void
@@ -45,15 +38,5 @@ class CloudpathsServiceProvider extends ServiceProvider
                 new Repository($app['config']['cloudpaths'])
             );
         });
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return ['Cloudpaths'];
     }
 }
