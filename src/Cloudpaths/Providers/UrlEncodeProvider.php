@@ -48,10 +48,10 @@ class UrlEncodeProvider
                 // Sync the old parent directory to the newly directory.
                 $newDirectory->setParent($oldDirectory->getParent());
             }
-            
+
             return $this->encodeParentRecursive($newDirectory);
         });
-        
+
         return $next($directories);
     }
 
@@ -90,7 +90,7 @@ class UrlEncodeProvider
             // Encode the parent directory name.
             return $this->factory->create($this->encodeDirectoryName($directory));
         });
-        
+
         $parent = $parents->reduce(function ($carryParent, $parent) {
             if ($carryParent) {
 
@@ -100,7 +100,7 @@ class UrlEncodeProvider
 
             return $parent;
         });
-        
+
         return $directory->setParent($parent);
     }
 }
