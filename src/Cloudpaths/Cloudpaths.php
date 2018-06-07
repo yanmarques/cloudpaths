@@ -171,10 +171,10 @@ class Cloudpaths extends Mapper
     {
         // Find the directories by the input and send to providers
         // pipeline.
-        $fullDirectoryPaths = $this->sendToPipeline($this->findDirectory($input));
+        $replaced = $this->applyReplaces($this->findDirectory($input), $replacements);
 
         return Collection::make(
-            $this->applyReplaces($fullDirectoryPaths->toArray(), $replacements)
+            $this->sendToPipeline($replaced)
         );
     }
 
@@ -382,20 +382,12 @@ class Cloudpaths extends Mapper
      * @param  array  $replacements
      * @return array
      */
-    protected function applyReplaces($paths, array $replacements)
+    protected function applyReplaces(DirectoryCollection $directories, array $replacements)
     {
-        // Create an array for the paths.
-        $paths = (array) $paths;
-
-        foreach ($paths as $index => $path) {
-            foreach ($replacements as $key => $replaces) {
-
-                // Apply the string replace on the path.
-                $paths[$index] = str_replace_first($key, $replaces, $path);
-            }
-        }
-
-        return $paths;
+        return $directories->map(function ($directory) use ($replacements) {
+            // Replace the value through all directory history.
+            return $this->replaceOnParents($directory, $replacements);
+        });
     }
 
     /**
@@ -467,6 +459,41 @@ class Cloudpaths extends Mapper
                 // Set the parent as the parent carried by reducer.
                 return $parent->setParent($carryParent);
             }, $topLevelDirectory);
+        });
+    }
+
+    /**
+     * Replace the array key/value to all the parents of directory.
+     *
+     * @param  Cloudpaths\Contracts\Directory $directory
+     * @param  array $replacements
+     * @return Cloudpaths\Contracts\Directory
+     */
+    protected function replaceOnParents(Directory $directory, array $replacements)
+    {
+        // First nested parent to encode and reverse the order.
+        $parents = $directory->getParentHistory();
+
+        $parents->transform(function ($directory) use ($replacements) {
+            if (in_array($directory->getName(), array_keys($replacements))) {
+
+                // Encode the parent directory name.
+                $directory = $this->factory->create(
+                    $replacements[$directory->getName()]
+                );
+            }
+
+            return $directory;
+        });
+        
+        return $parents->reduce(function ($carryParent, $parent) {
+            if ($carryParent) {
+
+                // Set the parent as the parent carried by reducer.
+                $parent->setParent($carryParent);
+            }
+
+            return $parent;
         });
     }
 }
