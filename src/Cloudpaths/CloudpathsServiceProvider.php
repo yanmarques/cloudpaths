@@ -35,7 +35,8 @@ class CloudpathsServiceProvider extends ServiceProvider
     {
         $this->app->singleton('Cloudpaths', function ($app) {
             return new Cloudpaths(
-                new Repository($this->app, $app['config']['cloudpaths'])
+                $this->app,
+                new Repository($app['config']['cloudpaths'])
             );
         });
     }
