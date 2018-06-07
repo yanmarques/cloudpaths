@@ -9,6 +9,7 @@ use Cloudpaths\Directory;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Config\Repository;
 use Cloudpaths\Contracts\Factory;
+use Illuminate\Container\Container;
 use Cloudpaths\Contracts\Directory as DirectoryContract;
 
 class CloudpathsTest extends TestCase
@@ -381,7 +382,7 @@ class CloudpathsTest extends TestCase
 
         $cloudpaths = $this->newCloudPaths(compact('paths'));
         $found = $cloudpaths->findDirectory('foo');
-
+        
         $this->assertFalse($found->isEmpty());
 
         $directory = $found->first();
@@ -581,7 +582,11 @@ class CloudpathsTest extends TestCase
      */
     protected function newCloudpaths(array $paths = [])
     {
+        $container = new Container;
+        $container->bind(Factory::class, DirFactory::class);
+
         return new Cloudpaths(
+            $container,
             new Repository($paths),
             new DirFactory
         );
