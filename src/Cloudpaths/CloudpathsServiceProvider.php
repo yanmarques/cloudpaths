@@ -33,6 +33,12 @@ class CloudpathsServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // Bind the Factory implementation.
+        $this->app->bind(
+            Contracts\Factory::class,
+            DirFactory::class
+        );
+
         $this->app->singleton('Cloudpaths', function ($app) {
             return new Cloudpaths(
                 $this->app,
