@@ -54,6 +54,18 @@ class DirectoryCollection extends Collection
     }
 
     /**
+     * Deep clone the collection object.
+     *
+     * @return Cloudpaths\DirectoryCollection
+     */
+    public function replicate()
+    {
+        return static::make($this->transform(function ($directory) {
+            return clone $directory;
+        })->toArray());
+    }
+
+    /**
      * Proxy the items setting of the collection instance.
      *
      * @param  mixed $items
