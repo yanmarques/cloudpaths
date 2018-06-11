@@ -608,6 +608,42 @@ class CloudpathsTest extends TestCase
     }
     
     /**
+     * Should found many directories using the root.
+     *
+     * @return void
+     */
+    public function testRootResolverWithMultipleSearches()
+    {
+        $config = [
+            'root' => 'root',
+            'paths' => [
+                'foo' => [
+                    'bar' => [
+                        'baz'
+                    ]
+                ]
+            ]
+        ];
+
+        $cloudpaths = $this->newCloudpaths($config);
+        
+        $cloudpaths->setRootResolver(function (Factory $factory, $root) {
+            return $factory->create('fooroot');
+        });
+
+        $cloudpaths->find('foo.baz');
+
+        $expected = 'fooroot/foo/bar/baz';
+        $result = $cloudpaths->find('foo.baz');
+
+        $this->assertFalse($result->isEmpty());
+        $this->assertEquals(
+            $result->first(),
+            $expected
+        );
+    }
+    
+    /**
      * Create a new cloudpaths instance.
      *
      * @param  array $paths
