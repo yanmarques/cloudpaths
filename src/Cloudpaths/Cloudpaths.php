@@ -192,7 +192,7 @@ class Cloudpaths extends Mapper
         $fragments = $this->parseInput($input);
 
         // Change the search scope to the main directories collection.
-        $this->searchEngine->setScope($this->directories);
+        $this->searchEngine->setScope($this->directories->replicate());
 
         // Make the first quick search on top level directories since the
         // first fragment should be the first directory.
@@ -452,7 +452,7 @@ class Cloudpaths extends Mapper
             $topLevelDirectory = $parents->shift()->setParent(
                 $this->getRoot()
             );
-
+            
             // Get the nested parent with all updated parents.
             return $parents->reduce(function ($carryParent, $parent) {
 

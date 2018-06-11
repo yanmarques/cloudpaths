@@ -144,4 +144,21 @@ class Directory implements DirectoryContract
 
         return $this;
     }
+
+    /**
+     * Clone the directory atributes.
+     *
+     * @return Cloudpaths\DirectoryCollection
+     */
+    public function __clone()
+    {
+        // Clone the subDirectories collection.
+        return new static(
+            $this->name,
+            clone $this->subDirectories,
+            $this->parent
+                ? clone $this->parent
+                : null
+        );
+    }
 }
