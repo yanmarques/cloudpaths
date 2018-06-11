@@ -205,4 +205,26 @@ class DirectoryTest extends TestCase
             $expectedCollection
         );
     }
+
+    /**
+     * Should clone the directory and lose reference from it.
+     *
+     * @return void
+     */
+    public function testCloneMethod()
+    {
+        $root = new Directory('root');
+        $directory = new Directory('foo', DirectoryCollection::make([
+            new Directory('bar')
+        ], $root));
+
+        $clone = clone $directory;
+        $clone->setSubDirectories(DirectoryCollection::make());
+        $clone->setParent(new Directory('baz'));
+
+        $this->assertNotEquals(
+            $directory,
+            $clone
+        );
+    }
 }
